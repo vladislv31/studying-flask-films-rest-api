@@ -12,6 +12,8 @@ Flask-SQLAlchemy = "^2.5.1"
 psycopg2-binary = "^2.9.3"
 Flask-Migrate = "^3.1.0"
 python-dotenv = "^0.20.0"
+pylint = "^2.13.9"
+pytest = "^7.1.2"
 
 [tool.poetry.dev-dependencies]
 

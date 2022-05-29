@@ -1,43 +1,70 @@
+"""Module implements and connects resources for films."""
+
 from flask_restful import Resource
 
 from app import api, db
-from app.models import Film, Director
+from app.models import Film
 
-from app.parsers import film_args_parser 
+from app.parsers import film_body_parser, film_args_parser
 
-from app.utils.db import get_all_films
-from app.utils.responses import successful_response_message
+from app.utils.db import get_all_films, add_film
+from app.utils.responses import successful_response_message, bad_request_response_message
 
 
 class FilmsResource(Resource):
+    """/films route resource."""
 
     def get(self):
-        films = get_all_films()
+        """Returns all the films.
+        Supports:
+            - filtering by:
+                - director_id
+                - range of premiere_date
+                - genres
+            - searching
+            - sorting by:
+                - rating
+                - premiere_date
+        """
+        parser = film_args_parser()
+        args = parser.parse_args()
+
+        films = get_all_films(search=args["search"],
+                sort_order=args["sort_order"],
+                sort_by=args["sort_by"],
+                director_id=args["director_id"],
+                start_premiere_date=args["start_premiere_date"],
+                end_premiere_date=args["end_premiere_date"],
+                genres_ids=args["genres_ids"])
 
         return {"count": len(films), "result": films}
 
     def post(self):
-        parser = film_args_parser()
-        args = parser.parse_args()
+        """Adds film into database."""
+        parser = film_body_parser()
+        body = parser.parse_args()
 
-        film = Film(
-            title=args["title"],
-            premiere_date=args["premiere_date"],
-            director_id=args["director_id"],
-            description=args["description"],
-            rating=args["rating"],
-            poster_url=args["poster_url"],
-            user_id=args["user_id"]
+        result, error = add_film(
+            title=body["title"],
+            premiere_date=body["premiere_date"],
+            director_id=body["director_id"],
+            description=body["description"],
+            rating=body["rating"],
+            poster_url=body["poster_url"],
+            user_id=body["user_id"]
         )
 
-        db.session.add(film)
-        db.session.commit()
+        if result:
+            return successful_response_message("Film has been added.")
 
-        return successful_response_message("Film has been added.")
+        return bad_request_response_message(error)
+
 
 class SingleFilmResource(Resource):
+    """/films/<int:film_id> route resource."""
 
     def get(self, film_id):
+        """Returns specific film."""
         film = Film.query.filter_by(id=film_id).first()
 
         return {
@@ -52,7 +79,8 @@ class SingleFilmResource(Resource):
         }
 
     def put(self, film_id):
-        parser = film_args_parser()
+        """Updates specific film."""
+        parser = film_body_parser()
         args = parser.parse_args()
 
         film = Film.query.get_or_404(film_id)
@@ -68,15 +96,16 @@ class SingleFilmResource(Resource):
         db.session.add(film)
         db.session.commit()
 
-        return successful_response_message("Film has been added.")
+        return successful_response_message("Film has been updated.")
 
     def delete(self, film_id):
+        """Deletes specific film."""
         film = Film.query.get_or_404(film_id)
 
         db.session.delete(film)
         db.session.commit()
 
-        return successful_response_message("Film has been added.")
+        return successful_response_message("Film has been deleted.")
 
 
 api.add_resource(FilmsResource, "/films")
