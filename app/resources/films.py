@@ -1,6 +1,7 @@
 """Module implements and connects resources for films."""
 
 from flask_restful import Resource
+from flask_login import login_required
 
 from app import api, db
 from app.models import Film
@@ -39,6 +40,7 @@ class FilmsResource(Resource):
 
         return {"count": len(films), "result": films}
 
+    @login_required
     def post(self):
         """Adds film into database."""
         parser = film_body_parser()

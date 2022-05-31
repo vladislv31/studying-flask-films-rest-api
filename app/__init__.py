@@ -21,6 +21,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
+from app import auth
 from app import resources
 from app import models
 
