@@ -1,4 +1,10 @@
+from datetime import date
+
 from app import db
+from app.exceptions import TitleValueError, PremiereDateValueError, RatingValueError
+from app.utils.helpers import validate_date
+
+from sqlalchemy.orm import validates
 
 
 class Role(db.Model):
@@ -37,9 +43,9 @@ class Director(db.Model):
         return f"<Director first_name={self.first_name}, last_name={self.last_name}>"
 
     
-film_genre = db.Table("film_genre",
-    db.Column("film_id", db.Integer, db.ForeignKey("films.id")),
-    db.Column("genre_id", db.Integer, db.ForeignKey("genres.id"))
+film_genres = db.Table("film_genres",
+    db.Column("film_id", db.Integer, db.ForeignKey("films.id", ondelete="CASCADE")),
+    db.Column("genre_id", db.Integer, db.ForeignKey("genres.id", ondelete="CASCADE"))
 )
 
 
@@ -64,8 +70,12 @@ class Film(db.Model):
     description = db.Column(db.Text)
     rating = db.Column(db.Integer, nullable=False)
     poster_url = db.Column(db.String(255))
-    director_id = db.Column(db.Integer, db.ForeignKey("directors.id"), nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
+    genres = db.relationship("Genre", secondary=film_genres)
+
+    director_id = db.Column(db.Integer, db.ForeignKey("directors.id", ondelete="SET NULL"), nullable=True)
+    director = db.relationship("Director")
 
     def __repr__(self):
         return f"<Film title={self.title}, premiere_date={self.premiere_date}>"
