@@ -30,7 +30,6 @@ def not_nullable():
     """Validates value checking it for nullable."""
 
     def validate(value):
-        print(value)
         if value is not None:
             return value
         raise ValueError
@@ -69,6 +68,7 @@ def film_body_parser():
         - rating            required int field in range 0-10
         - poster_url        not required string field
         - user_id           required int field
+        - genres_id         not required string field in format genre_1,genre_2,genre_3
     """
     film_body_req_parser = reqparse.RequestParser()
 
@@ -107,11 +107,10 @@ def film_body_parser():
             help="poster_url cannot be blank!",
             location="json")
 
-    film_body_req_parser.add_argument("user_id",
-            required=True,
-            nullable=False,
-            help="user_id cannot be blank!",
-            type=int,
+    film_body_req_parser.add_argument("genres_ids",
+            required=False,
+            help="genres_ids should be specified in format genre_1,genre_2,genre_3.",
+            type=array_type(","),
             location="json")
 
     return film_body_req_parser
