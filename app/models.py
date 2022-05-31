@@ -1,5 +1,7 @@
 from datetime import date
 
+from flask_login import UserMixin
+
 from app import db
 from app.exceptions import TitleValueError, PremiereDateValueError, RatingValueError
 from app.utils.helpers import validate_date
@@ -18,7 +20,7 @@ class Role(db.Model):
         return f"<Role name={self.name}>"
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     
     __tablename__ = "users"
 
