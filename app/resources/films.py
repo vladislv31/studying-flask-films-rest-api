@@ -1,15 +1,19 @@
 """Module implements and connects resources for films."""
 
 from flask_restful import Resource
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app import api, db
 from app.models import Film
 
 from app.parsers import film_body_parser, film_args_parser
 
-from app.utils.db import get_all_films, add_film
-from app.utils.responses import successful_response_message, bad_request_response_message
+from app.utils.db import get_all_films, add_film, update_film, delete_film
+from app.utils.responses import successful_response_message, \
+    bad_request_response_message, \
+    unauthorized_request_response_message, \
+    not_found_request_response_message
+from app.utils.decorators import single_film_middleware
 
 
 class FilmsResource(Resource):
@@ -53,7 +57,8 @@ class FilmsResource(Resource):
             description=body["description"],
             rating=body["rating"],
             poster_url=body["poster_url"],
-            user_id=body["user_id"]
+            user_id=current_user.id,
+            genres_ids=body["genres_ids"]
         )
 
         if result:
@@ -80,34 +85,40 @@ class SingleFilmResource(Resource):
             "user_id": film.user_id
         }
 
+    @login_required
+    @single_film_middleware
     def put(self, film_id):
         """Updates specific film."""
         parser = film_body_parser()
-        args = parser.parse_args()
+        body = parser.parse_args()
 
-        film = Film.query.get_or_404(film_id)
+        result, error = update_film(
+            film_id=film_id,
+            title=body["title"],
+            premiere_date=body["premiere_date"],
+            director_id=body["director_id"],
+            description=body["description"],
+            rating=body["rating"],
+            poster_url=body["poster_url"],
+            user_id=current_user.id,
+            genres_ids=body["genres_ids"]
+        )
 
-        film.title = args["title"]
-        film.premiere_date = args["premiere_date"]
-        film.director_id = args["director_id"]
-        film.description = args["description"]
-        film.rating = args["rating"]
-        film.poster_url = args["poster_url"]
-        film.user_id = args["user_id"]
+        if result:
+            return successful_response_message("Film has been updated.")
 
-        db.session.add(film)
-        db.session.commit()
+        return bad_request_response_message(error)
 
-        return successful_response_message("Film has been updated.")
-
+    @login_required
+    @single_film_middleware
     def delete(self, film_id):
         """Deletes specific film."""
-        film = Film.query.get_or_404(film_id)
+        result, error = delete_film(film_id)
 
-        db.session.delete(film)
-        db.session.commit()
+        if result:
+            return successful_response_message("Film has been deleted.")
 
-        return successful_response_message("Film has been deleted.")
+        return successful_response_message(error)
 
 
 api.add_resource(FilmsResource, "/films")

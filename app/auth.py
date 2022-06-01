@@ -6,7 +6,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app, db
-from app.models import User
+from app.models import User, Role
 
 
 login_manager = LoginManager()
@@ -22,7 +22,7 @@ def load_user(user_id):
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     """Returns message if no authorized."""
-    return {"message": "Unauthorized."}, 401
+    return {"message": "Unauthenticated."}, 401
 
 
 @app.route("/register", methods=["POST"])
@@ -38,7 +38,10 @@ def register():
         return jsonify({"message": "Username is already used."}), 400
 
     password_hash = generate_password_hash(password)
-    user = User(username=username, password=password_hash, role_id=2)
+
+    user_role = Role.query.filter_by(name="user").first()
+
+    user = User(username=username, password=password_hash, role_id=user_role.id)
 
     db.session.add(user)
     db.session.commit()
@@ -60,7 +63,7 @@ def login():
     if user and check_password_hash(user.password, password):
         login_user(user)
 
-        return jsonify({"message": "Authorized successfully."}), 200
+        return jsonify({"message": "Authentication successfully."}), 200
 
     return jsonify({"message": "Incorrect username or password."}), 400
 

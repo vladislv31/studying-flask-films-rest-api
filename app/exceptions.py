@@ -1,13 +1,9 @@
 
 
-class TitleValueError(ValueError):
+class GenreIdError(ValueError):
     pass
 
 
-class PremiereDateValueError(ValueError):
-    pass
-
-
-class RatingValueError(ValueError):
+class FilmIdError(ValueError):
     pass
 

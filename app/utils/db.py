@@ -1,7 +1,7 @@
 """Module implemets utils for working with database."""
 
-from app.models import Film, Director, Genre
-from app.exceptions import TitleValueError, PremiereDateValueError, RatingValueError
+from app.models import Film, Director, Genre, film_genres
+from app.exceptions import GenreIdError, FilmIdError
 from app import db
 
 from sqlalchemy.exc import IntegrityError
@@ -19,6 +19,7 @@ def add_film(**kwargs):
         - rating
         - poster_url
         - user_id
+        - genres_ids
     Returns:
         - True, False - if no errors
         - True, str - if there is error, second value - error message
@@ -36,12 +37,112 @@ def add_film(**kwargs):
             user_id=kwargs["user_id"]
         )
 
+        if kwargs["genres_ids"]:
+            for genre_id in kwargs["genres_ids"]:
+                genre = Genre.query.filter_by(id=genre_id).first()
+
+                if not genre:
+                    raise GenreIndexError("genre with such index not found: {}".format(genre_id))
+
+                film.genres.append(genre)
+
         db.session.add(film)
         db.session.commit()
         is_commited = True
 
+    except GenreIndexError as err:
+        return False, {"genres_ids": str(err)}
+
     except IntegrityError as err:
-        return False, {"user_id, director_id": "Some of foreign keys specified wrong."}
+        return False, {"director_id": "director_id foreign key specified wrong."}
+
+    finally:
+        if not is_commited:
+            db.session.rollback()
+
+    return True, False
+
+
+def update_film(**kwargs):
+    """Updates film.
+    Args:
+        - user_id
+        - title
+        - premiere_date
+        - director_id
+        - description
+        - rating
+        - poster_url
+        - user_id
+        - genres_ids
+    Returns:
+        - True, False - if no errors
+        - True, str - if there is error, second value - error message
+    """
+    is_commited = False
+
+    try:
+        film = Film.query.filter_by(id=kwargs["film_id"]).first()
+
+        if not film:
+            raise FilmIdError("Film with such ID not found: {}".format())
+
+        film.title = kwargs["title"]
+        film.premiere_date = kwargs["premiere_date"]
+        film.director_id = kwargs["director_id"]
+        film.description = kwargs["description"]
+        film.rating = kwargs["rating"]
+        film.poster_url = kwargs["poster_url"]
+
+        if kwargs["genres_ids"]:
+            del film.genres[:]
+
+            for genre_id in kwargs["genres_ids"]:
+                genre = Genre.query.filter_by(id=genre_id).first()
+
+                if not genre:
+                    raise GenreIdError("genre with such ID not found: {}.".format(genre_id))
+
+                film.genres.append(genre)
+        
+        db.session.add(film)
+        db.session.commit()
+        is_commited = True
+
+    except FilmIdError as err:
+        return False, {"film_id": str(err)}
+
+    except GenreIdError as err:
+        return False, {"genres_ids": str(err)}
+
+    except IntegrityError as err:
+        return False, {"director_id": "director_id foreign key specified wrong."}
+
+    except Exception as err:
+        return False, {"message": str(err)}
+
+    finally:
+        if not is_commited:
+            db.session.rollback()
+
+    return True, False
+
+
+def delete_film(film_id):
+    is_commited = False
+
+    try:
+        film = Film.query.filter_by(id=film_id).first()
+
+        if not film:
+            raise FilmIdError("Film with such ID not found: {}".format())
+
+        db.session.delete(film)
+        db.session.commit()
+        is_commited = True
+
+    except FilmIdError as err:
+        return False, {"film_id": str(err)}
 
     finally:
         if not is_commited:
@@ -88,12 +189,20 @@ def get_all_films(**kwargs):
             "id": film.id,
             "title": film.title,
             "premiere_date": str(film.premiere_date),
-            "director": f"{film.director.first_name} {film.director.last_name}" if film.director else "unknown",
+
+            "director": {
+                "id": film.director.id,
+                "name": f"{film.director.first_name} {film.director.last_name}"
+            } if film.director else "unknown",
+
             "genres": [genre.name for genre in film.genres],
             "description": film.description,
             "rating": film.rating,
             "poster_url": film.poster_url,
-            "user_id": film.user_id
+            "user": {
+                "id": film.user.id,
+                "username": film.user.username
+            }
         })
 
     return films
