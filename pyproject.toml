@@ -15,6 +15,8 @@ python-dotenv = "^0.20.0"
 pylint = "^2.13.9"
 pytest = "^7.1.2"
 Flask-Login = "^0.6.1"
+pydantic = "^1.9.1"
+Flask-Pydantic = "^0.9.0"
 
 [tool.poetry.dev-dependencies]
 
