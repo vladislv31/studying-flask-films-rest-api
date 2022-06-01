@@ -40,7 +40,8 @@ class FilmsResource(Resource):
                 director_id=args["director_id"],
                 start_premiere_date=args["start_premiere_date"],
                 end_premiere_date=args["end_premiere_date"],
-                genres_ids=args["genres_ids"])
+                genres_ids=args["genres_ids"],
+                page=args["page"])
 
         return {"count": len(films), "result": films}
 

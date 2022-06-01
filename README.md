@@ -20,4 +20,6 @@ DB_NAME=films_rest_api
 APP_SETTINGS=app.config.DevelopmentConfig
 
 SQLALCHEMY_DATABASE_URI=postgresql://postgres:123@localhost:5432/films_rest_api
+
+FILMS_PER_PAGE=10
 ```
