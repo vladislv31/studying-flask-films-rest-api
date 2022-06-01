@@ -8,7 +8,7 @@ from app.models import Film
 
 from app.parsers import film_body_parser, film_args_parser
 
-from app.utils.db import get_all_films, add_film, update_film, delete_film
+from app.utils.db import get_all_films, get_film_by_id, add_film, update_film, delete_film
 from app.utils.responses import successful_response_message, \
     bad_request_response_message, \
     unauthorized_request_response_message, \
@@ -73,18 +73,12 @@ class SingleFilmResource(Resource):
 
     def get(self, film_id):
         """Returns specific film."""
-        film = Film.query.filter_by(id=film_id).first()
+        film, error = get_film_by_id(film_id)
 
-        return {
-            "id": film.id,
-            "title": film.title,
-            "premiere_date": str(film.premiere_date),
-            "director_id": film.director_id,
-            "description": film.description,
-            "rating": film.rating,
-            "poster_url": film.poster_url,
-            "user_id": film.user_id
-        }
+        if film:
+            return film
+
+        return bad_request_response_message(error)
 
     @login_required
     @single_film_middleware

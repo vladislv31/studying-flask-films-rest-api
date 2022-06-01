@@ -135,7 +135,7 @@ def delete_film(film_id):
         film = Film.query.filter_by(id=film_id).first()
 
         if not film:
-            raise FilmIdError("Film with such ID not found: {}".format())
+            raise FilmIdError("Film with such ID not found: {}".format(film_id))
 
         db.session.delete(film)
         db.session.commit()
@@ -211,6 +211,40 @@ def get_all_films(**kwargs):
         })
 
     return films
+
+
+def get_film_by_id(film_id):
+    """Returns film from database.
+    Args:
+        - film_id
+    Returns:
+        - dict - film
+    """
+
+    film = Film.query.filter_by(id=film_id).first()
+
+    if not film:
+        return False, {"film_id": "Film with such id not found: {}".format(film_id)}
+    
+    return {
+        "id": film.id,
+        "title": film.title,
+        "premiere_date": str(film.premiere_date),
+
+        "director": {
+            "id": film.director.id,
+            "name": f"{film.director.first_name} {film.director.last_name}"
+        } if film.director else "unknown",
+
+        "genres": [genre.name for genre in film.genres],
+        "description": film.description,
+        "rating": film.rating,
+        "poster_url": film.poster_url,
+        "user": {
+            "id": film.user.id,
+            "username": film.user.username
+        }
+    }, False
 
 
 # orm helpers
