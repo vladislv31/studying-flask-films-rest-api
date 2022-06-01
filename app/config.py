@@ -12,6 +12,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     RESTFUL_JSON = {"ensure_ascii": False}
+    FILMS_PER_PAGE = int(os.getenv("FILMS_PER_PAGE", 10))
 
 
 class ProductionConfig(Config):

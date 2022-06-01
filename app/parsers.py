@@ -55,6 +55,17 @@ def array_type(delimiter):
 
     return validate
 
+def positive_integer():
+    """Validates integer to be positive."""
+
+    def validate(value):
+        if int(value) <= 0:
+            raise ValueError
+
+        return int(value)
+
+    return validate
+
 
 # parsers
 
@@ -126,6 +137,7 @@ def film_args_parser():
         - start_premiere_date       not required string field in format YYYY-m-d
         - end_premiere_date         not required string field in format YYYY-m-d
         - genres_id                 not required string field in format genre_1,genre_2,genre_3
+        - page                      not required integer field
     """
     film_args_req_parser = reqparse.RequestParser()
 
@@ -165,6 +177,12 @@ def film_args_parser():
             required=False,
             help="genres_ids should be specified in format genre_1,genre_2,genre_3.",
             type=array_type(","),
+            location="args")
+
+    film_args_req_parser.add_argument("page",
+            required=False,
+            help="page field should specified like positive integer.",
+            type=positive_integer(),
             location="args")
 
     return film_args_req_parser

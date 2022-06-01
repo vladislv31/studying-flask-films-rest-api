@@ -2,7 +2,7 @@
 
 from app.models import Film, Director, Genre, film_genres
 from app.exceptions import GenreIdError, FilmIdError
-from app import db
+from app import db, app
 
 from sqlalchemy.exc import IntegrityError
 
@@ -161,6 +161,7 @@ def get_all_films(**kwargs):
         - start_premiere_date
         - end_premiere_date
         - genres_ids
+        - page
     Returns:
         - list - list of films
     """
@@ -171,6 +172,9 @@ def get_all_films(**kwargs):
     start_premiere_date = kwargs.get("start_premiere_date", None)
     end_premiere_date = kwargs.get("end_premiere_date", None)
     genres_ids = kwargs.get("genres_ids", None)
+    page = kwargs.get("page", None)
+
+    films_per_page = app.config["FILMS_PER_PAGE"]
 
     films_query = Film.query
 
@@ -180,11 +184,12 @@ def get_all_films(**kwargs):
     films_query = films_genres_ids_filter(films_query, genres_ids)
     films_query = films_ordering_sorting(films_query, sort_by, sort_order)
 
-    films_query = films_query.all()
+    films_query = films_query.paginate(page, films_per_page, False)
+    films_items = films_query.items
 
     films = []
 
-    for film in films_query:
+    for film in films_items:
         films.append({
             "id": film.id,
             "title": film.title,
