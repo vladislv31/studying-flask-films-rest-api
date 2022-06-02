@@ -1,17 +1,20 @@
 
 
 def successful_response_message(message):
-    return {"message": message}, 200
+    return {"message": str(message)}, 200
 
 
 def bad_request_response_message(message):
-    return {"message": message}, 400
+    return {"message": str(message)}, 400
 
 
 def unauthorized_request_response_message(message="Access denied."):
-    return {"message": message}, 401
+    return {"message": str(message)}, 401
 
 
 def not_found_request_response_message(message):
-    return {"message": message}, 404
+    return {"message": str(message)}, 404
+
+def internal_server_response_message(message="Internal server error."):
+    return {"message": str(message)}, 500
 

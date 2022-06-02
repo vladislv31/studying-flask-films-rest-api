@@ -7,3 +7,7 @@ class GenreIdError(ValueError):
 class FilmIdError(ValueError):
     pass
 
+
+class ForeignKeyError(ValueError):
+    pass
+

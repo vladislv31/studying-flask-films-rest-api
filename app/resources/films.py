@@ -2,24 +2,30 @@
 
 from flask_restful import Resource
 from flask_login import login_required, current_user
+from flask_pydantic import validate
 
-from app import api, db
 from app.models import Film
 
-from app.parsers import film_body_parser, film_args_parser
+from app import api
 
-from app.utils.db import get_all_films, get_film_by_id, add_film, update_film, delete_film
+from app.utils.database.films import FilmsCRUD
+from app.exceptions import ForeignKeyError, GenreIdError, FilmIdError
+
+from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
+
 from app.utils.responses import successful_response_message, \
     bad_request_response_message, \
     unauthorized_request_response_message, \
-    not_found_request_response_message
+    not_found_request_response_message, \
+    internal_server_response_message
 from app.utils.decorators import single_film_middleware
 
 
 class FilmsResource(Resource):
     """/films route resource."""
 
-    def get(self):
+    @validate()
+    def get(self, query: FilmsQuerySchema):
         """Returns all the films.
         Supports:
             - filtering by:
@@ -31,41 +37,29 @@ class FilmsResource(Resource):
                 - rating
                 - premiere_date
         """
-        parser = film_args_parser()
-        args = parser.parse_args()
+        films = FilmsCRUD.read(query)
 
-        films = get_all_films(search=args["search"],
-                sort_order=args["sort_order"],
-                sort_by=args["sort_by"],
-                director_id=args["director_id"],
-                start_premiere_date=args["start_premiere_date"],
-                end_premiere_date=args["end_premiere_date"],
-                genres_ids=args["genres_ids"],
-                page=args["page"])
-
-        return {"count": len(films), "result": films}
+        return {"count": len(films), "result": [film.dict() for film in films]}
 
     @login_required
-    def post(self):
+    @validate()
+    def post(self, body: FilmBodySchema):
         """Adds film into database."""
-        parser = film_body_parser()
-        body = parser.parse_args()
+        try:
+            FilmsCRUD.create(FilmWithUserIdBodySchema.parse_obj(
+                body.dict() | {"user_id": current_user.id}
+            ))
 
-        result, error = add_film(
-            title=body["title"],
-            premiere_date=body["premiere_date"],
-            director_id=body["director_id"],
-            description=body["description"],
-            rating=body["rating"],
-            poster_url=body["poster_url"],
-            user_id=current_user.id,
-            genres_ids=body["genres_ids"]
-        )
+        except GenreIdError as err:
+            return bad_request_response_message(err)
 
-        if result:
-            return successful_response_message("Film has been added.")
+        except ForeignKeyError as err:
+            return bad_request_response_message(err)
 
-        return bad_request_response_message(error)
+        except Exception as ex:
+            return internal_server_response_message()
+
+        return successful_response_message("Film has been added.")
 
 
 class SingleFilmResource(Resource):
@@ -73,47 +67,49 @@ class SingleFilmResource(Resource):
 
     def get(self, film_id):
         """Returns specific film."""
-        film, error = get_film_by_id(film_id)
+        try:
+            film = FilmsCRUD.read_one(film_id)
 
-        if film:
-            return film
+        except FilmIdError as err:
+            return not_found_request_response_message(err)
 
-        return bad_request_response_message(error)
+        except Exception as ex:
+            return internal_server_response_message()
+
+        return film.dict()
 
     @login_required
     @single_film_middleware
-    def put(self, film_id):
+    @validate()
+    def put(self, film_id, body: FilmBodySchema):
         """Updates specific film."""
-        parser = film_body_parser()
-        body = parser.parse_args()
+        try:
+            FilmsCRUD.update(film_id, FilmWithUserIdBodySchema.parse_obj(
+                body.dict() | {"user_id": current_user.id}
+            ))
 
-        result, error = update_film(
-            film_id=film_id,
-            title=body["title"],
-            premiere_date=body["premiere_date"],
-            director_id=body["director_id"],
-            description=body["description"],
-            rating=body["rating"],
-            poster_url=body["poster_url"],
-            user_id=current_user.id,
-            genres_ids=body["genres_ids"]
-        )
+        except FilmIdError as err:
+            return not_found_request_response_message(err)
 
-        if result:
-            return successful_response_message("Film has been updated.")
+        except Exception as ex:
+            return internal_server_response_message()
 
-        return bad_request_response_message(error)
+        return successful_response_message("Film has been updated.")
 
     @login_required
     @single_film_middleware
     def delete(self, film_id):
         """Deletes specific film."""
-        result, error = delete_film(film_id)
+        try:
+            FilmsCRUD.delete(film_id)
 
-        if result:
-            return successful_response_message("Film has been deleted.")
+        except FilmIdError as err:
+            return not_found_request_response_message(err)
 
-        return successful_response_message(error)
+        except Exception as ex:
+            return internal_server_response_message()
+
+        return successful_response_message("Film has been deleted.")
 
 
 api.add_resource(FilmsResource, "/films")
