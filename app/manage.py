@@ -6,7 +6,7 @@ from datetime import datetime
 from faker import Faker
 
 from app import app, db
-from app.models import Genre, Director, Film, User
+from app.database.models import Genre, Director, Film, User
 
 
 faker_ = Faker()

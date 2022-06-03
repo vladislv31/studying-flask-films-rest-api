@@ -6,7 +6,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app, db
-from app.models import User, Role
+from app.database.models import User, Role
 
 
 login_manager = LoginManager()

@@ -1,4 +1,4 @@
-from app.models import Film, Genre
+from app.database.models import Film, Genre
 
 
 def films_search_filter(query: Film.query, search: str) -> Film.query:
