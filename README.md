@@ -5,7 +5,7 @@
 - clone repository
 - poetry install
 - poetry shell
-- python main.py
+- python wsgi.py
 
 ## .env file example:
 

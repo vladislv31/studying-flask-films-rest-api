@@ -54,7 +54,8 @@ class Director(db.Model):
     
 film_genres = db.Table("film_genres",
     db.Column("film_id", db.Integer, db.ForeignKey("films.id", ondelete="CASCADE")),
-    db.Column("genre_id", db.Integer, db.ForeignKey("genres.id", ondelete="CASCADE"))
+    db.Column("genre_id", db.Integer, db.ForeignKey("genres.id", ondelete="CASCADE")),
+    db.PrimaryKeyConstraint("film_id", "genre_id")
 )
 
 
