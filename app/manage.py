@@ -1,47 +1,18 @@
 """Command manager."""
 
 import random
+from datetime import datetime
+
+from faker import Faker
 
 from app import app, db
 from app.models import Genre, Director, Film, User
 
 
-genres = [
-    "Боевик",
-    "Комедия",
-    "Вестерн",
-    "Гангстерский фильм",
-    "Детектив",
-    "Драма",
-    "Исторический фильм",
-    "Мелодрама"
-]
+faker_ = Faker()
 
-directors = [
-    "Сэм Рейми",
-    "Энтони Руссо",
-    "Джон Уотсс",
-    "Алан Тейлор",
-    "Джеймс Кэмерон",
-    "Марк Уэбб",
-    "Шейн Блэк",
-    "Джоан Роулинг"
-]
-
-films = [
-    "Человек-паук",
-    "Железный человек",
-    "Халк",
-    "Тор",
-    "Мстители",
-    "Терминатор",
-    "Гарри Поттер",
-    "Первый мститель",
-    "Черная вдова",
-    "Человек-муравей"
-]
-
-genres_rows, directors_ids = [], []
+genres, directors_ids = [], []
+used_genres = []
 
 
 @app.cli.command("db-seed")
@@ -56,20 +27,28 @@ def db_seed():
 def seed_genres():
     Genre.query.delete()
 
-    for genre_name in genres:
-        genre = Genre(name=genre_name)
+    for _ in range(20):
+        genre_name = faker_.word()
+
+        while genre_name in used_genres:
+            genre_name = faker_.word()
+
+        used_genres.append(genre_name)
+
+        genre = Genre(name=genre_name.capitalize())
         db.session.add(genre)
         db.session.flush()
-        genres_rows.append(genre)
+        genres.append(genre)
 
 
 def seed_directors():
     Director.query.delete()
 
-    for director_name in directors:
+    for _ in range(15):
+        first_name, last_name = faker_.name().split(" ")[:2]
         director = Director(
-            first_name=director_name.split(" ")[0],
-            last_name=director_name.split(" ")[1]
+            first_name=first_name,
+            last_name=last_name
         )
         db.session.add(director)
         db.session.flush()
@@ -79,20 +58,22 @@ def seed_directors():
 def seed_films():
     Film.query.delete()
 
-    for film_title in films:
-        for film_number in range(1, 6):
-            film = Film(
-                title=f"{film_title} {film_number}",
-                premiere_date=f"{random.randrange(2000, 2022)}-{random.randrange(1, 13)}-{random.randrange(1, 28)}",
-                description="Описание фильма...",
-                poster_url="https://i.picsum.photos/id/222/200/300.jpg?hmac=owJZdOfXwkUqJHbR-MjF56GoNKbFIp3qGeGkkBS3Ei0",
-                rating=random.randrange(5, 11),
-                director_id=random.choice(directors_ids),
-                user_id=User.query.first().id
-            )
+    for _ in range(200):
+        film = Film(
+            title=faker_.sentence(nb_words=3)[:-1],
+            premiere_date=faker_.date_between_dates(date_start=datetime(2005, 1, 1), date_end=datetime(2022, 1, 1)),
+            description=faker_.text(),
+            poster_url="https://example.com/image",
+            rating=random.randrange(5, 11),
+            director_id=random.choice(directors_ids),
+            user_id=User.query.first().id
+        )
 
-            for _ in range(random.randrange(1, 5)):
-                film.genres.append(random.choice(genres_rows))
+        film_genres = genres[:]
+        random.shuffle(film_genres)
 
-            db.session.add(film)
+        for _ in range(random.randrange(1, 5)):
+            film.genres.append(film_genres.pop())
+
+        db.session.add(film)
 
