@@ -1,11 +1,8 @@
-from sqlalchemy.exc import IntegrityError
-
-
 from app import app, db
 
 from app.schemas.films import FilmWithUserIdBodySchema, FilmsQuerySchema, FilmSchema
-from app.exceptions import GenreIdError, ForeignKeyError, FilmIdError
-from app.models import Film, Genre
+from app.exceptions import GenreIdError, FilmIdError, DirectorIdError
+from app.models import Film, Genre, Director
 from app.utils.orm import films_search_filter,  \
         films_director_filter, \
         films_premiere_date_filter, \
@@ -18,6 +15,11 @@ class FilmsCRUD:
     @staticmethod
     def create(data: FilmWithUserIdBodySchema) -> None:
         try:
+            director = Director.query.filter_by(id=data.director_id).first()
+
+            if not director:
+                raise DirectorIdError("director with such id not found: {}".format(data.director_id))
+
             film = Film(
                 title=data.title,
                 premiere_date=data.premiere_date,
@@ -29,7 +31,7 @@ class FilmsCRUD:
             )
 
             if data.genres_ids:
-                for genre_id in data.genres_ids:
+                for genre_id in set(data.genres_ids):
                     genre = Genre.query.filter_by(id=genre_id).first()
 
                     if not genre:
@@ -39,10 +41,6 @@ class FilmsCRUD:
 
             db.session.add(film)
             db.session.commit()
-
-        except IntegrityError as err:
-            db.session.rollback()
-            raise ForeignKeyError("director_id foreign key specified wrong.")
 
         except Exception as ex:
             db.session.rollback()
@@ -91,6 +89,11 @@ class FilmsCRUD:
     @staticmethod
     def update(film_id: int, data: FilmWithUserIdBodySchema) -> None:
         try:
+            director = Director.query.filter_by(id=data.director_id).first()
+
+            if not director:
+                raise DirectorIdError("director with such id not found: {}".format(data.director_id))
+
             film = Film.query.filter_by(id=film_id).first()
 
             if not film:
@@ -107,7 +110,7 @@ class FilmsCRUD:
             if data.genres_ids:
                 del film.genres[:]
 
-                for genre_id in data.genres_ids:
+                for genre_id in set(data.genres_ids):
                     genre = Genre.query.filter_by(id=genre_id).first()
 
                     if not genre:
@@ -118,10 +121,6 @@ class FilmsCRUD:
             db.session.add(film)
             db.session.commit()
             is_commited = True
-
-        except IntegrityError as err:
-            db.session.rollback()
-            raise ForeignKeyError("director_id foreign key specified wrong.")
 
         except Exception as err:
             db.session.rollback()
