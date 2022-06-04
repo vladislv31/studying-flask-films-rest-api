@@ -56,10 +56,6 @@ class FilmsResource(Resource):
         except DirectorIdError as err:
             return bad_request_response_message(err)
 
-        except Exception as ex:
-            print(ex)
-            return internal_server_response_message()
-
         return successful_response_message("Film has been added.")
 
 
@@ -73,10 +69,6 @@ class SingleFilmResource(Resource):
 
         except FilmIdError as err:
             return not_found_request_response_message(err)
-
-        except Exception as ex:
-            print(ex)
-            return internal_server_response_message()
 
         return film.dict()
 
@@ -93,10 +85,6 @@ class SingleFilmResource(Resource):
         except FilmIdError as err:
             return not_found_request_response_message(err)
 
-        except Exception as ex:
-            print(ex)
-            return internal_server_response_message()
-
         return successful_response_message("Film has been updated.")
 
     @login_required
@@ -108,10 +96,6 @@ class SingleFilmResource(Resource):
 
         except FilmIdError as err:
             return not_found_request_response_message(err)
-
-        except Exception as ex:
-            print(ex)
-            return internal_server_response_message()
 
         return successful_response_message("Film has been deleted.")
 
