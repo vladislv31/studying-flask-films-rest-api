@@ -8,6 +8,6 @@ class FilmIdError(ValueError):
     pass
 
 
-class ForeignKeyError(ValueError):
+class DirectorIdError(ValueError):
     pass
 

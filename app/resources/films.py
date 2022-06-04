@@ -9,7 +9,7 @@ from app.models import Film
 from app import api
 
 from app.utils.database.films import FilmsCRUD
-from app.exceptions import ForeignKeyError, GenreIdError, FilmIdError
+from app.exceptions import DirectorIdError, GenreIdError, FilmIdError
 
 from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
 
@@ -53,7 +53,7 @@ class FilmsResource(Resource):
         except GenreIdError as err:
             return bad_request_response_message(err)
 
-        except ForeignKeyError as err:
+        except DirectorIdError as err:
             return bad_request_response_message(err)
 
         except Exception as ex:
