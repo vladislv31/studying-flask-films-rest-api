@@ -1,15 +1,40 @@
-from typing import Optional, Any
-from datetime import date
+from typing import Optional
 
-from pydantic import BaseModel, validator 
+import datetime
 
+from pydantic import BaseModel, validator
+
+from app.database.schemas.genres import GenreSchema
+from app.database.schemas.directors import DirectorSchema
+from app.database.schemas.users import UserSchema
+from app.database.schemas.enums import SortByEnum, SortOrderEnum
 from app.utils.helpers import validate_date
-from app.schemas.enums import SortByEnum, SortOrderEnum
-from app.schemas.users import UserSchema
-from app.schemas.directors import DirectorSchema
-from app.schemas.genres import GenreSchema
 
-from app.models import Film, Director, User, Genre
+
+class FilmSchema(BaseModel):
+    id: int
+    title: str
+    premiere_date: Optional[datetime.date]
+    description: Optional[str]
+    rating: int
+    poster_url: Optional[str]
+    director: Optional[DirectorSchema]
+    user: UserSchema
+    genres: list[GenreSchema]
+
+    class Config:
+        orm_mode = True
+
+    @validator("director")
+    def director_none_then_unknown(cls, value):
+        if not value:
+            return "unknown"
+
+        return value
+
+    @validator("premiere_date")
+    def premiere_date_to_string(cls, value):
+        return str(value)
 
 
 class FilmsQuerySchema(BaseModel):
@@ -80,23 +105,4 @@ class FilmBodySchema(BaseModel):
 
 class FilmWithUserIdBodySchema(FilmBodySchema):
     user_id: int
-
-
-class FilmSchema(BaseModel):
-    id: int
-    title: str
-    premiere_date: Optional[date]
-    director: Optional[DirectorSchema]
-    genres: Optional[list[GenreSchema]]
-    description: Optional[str]
-    rating: int
-    poster_url: Optional[str]
-    user: UserSchema
-
-    class Config:
-        orm_mode = True
-    
-    @validator("premiere_date")
-    def premiere_date_to_string(cls, value):
-        return str(value)
 

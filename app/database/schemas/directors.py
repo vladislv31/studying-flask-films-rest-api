@@ -1,10 +1,11 @@
 from pydantic import BaseModel
 
 
-class UserSchema(BaseModel):
+class DirectorSchema(BaseModel):
     id: int
-    username: str
- 
+    first_name: str
+    last_name: str
+
     class Config:
         orm_mode = True
 
