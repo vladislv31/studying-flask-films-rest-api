@@ -1,15 +1,12 @@
-from sqlalchemy.exc import IntegrityError
-
-
 from app import app, db
 
 from app.utils.exceptions import EntityIdError
-from app.database.models import Film, Genre, Director
+from app.models import Film, Genre, Director
 
 from typing import Any
 
 from app.database.cruds.base import BaseCRUD
-from app.database.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
+from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
 
 from app.utils.orm import films_search_filter,  \
     films_director_filter, \

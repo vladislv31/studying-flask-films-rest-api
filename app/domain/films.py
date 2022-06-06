@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask_login import current_user
 
-from app.database.schemas.films import FilmsQuerySchema, FilmSchema, FilmWithUserIdBodySchema, FilmBodySchema
+from app.schemas.films import FilmsQuerySchema, FilmSchema, FilmWithUserIdBodySchema, FilmBodySchema
 from app.database.cruds.films import FilmsCRUD
 
 from app.utils.exceptions import UnauthorizedError

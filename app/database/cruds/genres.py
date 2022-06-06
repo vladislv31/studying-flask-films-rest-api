@@ -1,8 +1,8 @@
 from app import db
 
 from app.database.cruds.base import BaseCRUD
-from app.database.schemas.genres import GenreCreateSchema, GenreUpdateSchema
-from app.database.models import Genre
+from app.schemas.genres import GenreCreateSchema, GenreUpdateSchema
+from app.models import Genre
 
 from app.utils.exceptions import GenreAlreadyExistsError, EntityIdError
 

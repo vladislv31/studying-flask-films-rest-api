@@ -3,7 +3,7 @@ from functools import wraps
 from flask_login import current_user
 
 from app.database.cruds.genres import GenresCRUD
-from app.database.schemas.genres import GenreSchema, GenreCreateSchema, GenreUpdateSchema
+from app.schemas.genres import GenreSchema, GenreCreateSchema, GenreUpdateSchema
 
 from app.utils.exceptions import UnauthorizedError
 

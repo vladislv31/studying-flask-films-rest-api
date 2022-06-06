@@ -4,7 +4,7 @@ from flask_restful import Resource
 from flask_login import login_required, current_user
 from flask_pydantic import validate
 
-from app import api, db
+from app import api
 from app.domain.films import get_all_films, create_film, update_film, delete_film, get_one_film
 
 from app.utils.exceptions import EntityIdError
@@ -12,10 +12,9 @@ from app.utils.exceptions import EntityIdError
 
 from app.utils.responses import successful_response_message, \
     bad_request_response_message, \
-    not_found_request_response_message, \
-    internal_server_response_message
+    not_found_request_response_message
 
-from app.database.schemas.films import FilmSchema, FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
+from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
 
 
 class FilmsResource(Resource):
