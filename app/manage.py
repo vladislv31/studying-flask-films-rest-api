@@ -5,23 +5,78 @@ from datetime import datetime
 
 from faker import Faker
 
+from werkzeug.security import generate_password_hash
+
 from app import app, db
-from app.models import Genre, Director, Film, User
+from app.models import Genre, Director, Film, User, Role
 
 
 faker_ = Faker()
 
 genres, directors_ids = [], []
 used_genres = []
+admin_role_id = None
+admin_user_id = None
 
 
 @app.cli.command("db-seed")
 def db_seed():
+    seed_role()
+    seed_user()
     seed_genres()
     seed_directors()
     seed_films()
 
     db.session.commit()
+
+
+def seed_role():
+    global admin_role_id
+
+    print("Checking admin role existing...")
+    if not Role.query.filter_by(name="admin").first():
+        role = Role(name="admin")
+
+        db.session.add(role)
+        db.session.commit()
+        db.session.refresh(role)
+
+        admin_role_id = role.id
+        print("Added admin role(id={})".format(role.id))
+    else:
+        admin_role_id = Role.query.filter_by(name="admin").first().id
+        print("Admin role already exists.")
+
+    print("Checking admin role existing...")
+    if not Role.query.filter_by(name="user").first():
+        role = Role(name="user")
+
+        db.session.add(role)
+        db.session.commit()
+        db.session.refresh(role)
+
+        print("Added users role(id={})".format(role.id))
+    else:
+        print("User role already exists.")
+
+
+def seed_user():
+    name = faker_.name().split(" ")
+    username = "{}_{}_{}".format(name[0], name[1], faker_.pyint())
+    password_hash = generate_password_hash("123")
+
+    user = User(username=username, password=password_hash, role_id=admin_role_id)
+
+    db.session.add(user)
+    db.session.commit()
+    db.session.refresh(user)
+
+    global admin_user_id
+    admin_user_id = user.id
+
+    print("Added admin user:")
+    print("\tusername: {}".format(username))
+    print("\tpassword: 123")
 
 
 def seed_genres():
@@ -40,6 +95,8 @@ def seed_genres():
         db.session.flush()
         genres.append(genre)
 
+    print("Added 20 genres")
+
 
 def seed_directors():
     Director.query.delete()
@@ -53,6 +110,8 @@ def seed_directors():
         db.session.add(director)
         db.session.flush()
         directors_ids.append(director.id)
+
+    print("Added 15 directors")
     
 
 def seed_films():
@@ -66,7 +125,7 @@ def seed_films():
             poster_url="https://example.com/image",
             rating=random.randrange(5, 11),
             director_id=random.choice(directors_ids),
-            user_id=User.query.first().id
+            user_id=admin_user_id
         )
 
         film_genres = genres[:]
@@ -77,3 +136,4 @@ def seed_films():
 
         db.session.add(film)
 
+    print("Added 200 films")

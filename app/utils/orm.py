@@ -4,7 +4,7 @@ from app.models import Film, Genre
 def films_search_filter(query: Film.query, search: str) -> Film.query:
     if search:
         search_like = "%{}%".format(search)
-        query = query.filter(Film.title.like(search_like))
+        query = query.filter(Film.title.ilike(search_like))
 
     return query
 

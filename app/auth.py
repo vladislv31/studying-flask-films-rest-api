@@ -66,7 +66,7 @@ def login():
 
         return jsonify({"message": "Authentication successfully."}), 200
 
-    app.logger.info("%s failed logging.", user.username)
+    app.logger.info("%s failed logging.", username)
     return jsonify({"message": "Incorrect username or password."}), 400
 
 

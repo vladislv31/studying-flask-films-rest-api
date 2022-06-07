@@ -51,13 +51,13 @@ class FilmsQuerySchema(BaseModel):
     @validator("start_premiere_date", "end_premiere_date")
     def premiere_dates_validator(cls, value: str) -> str:
         if not validate_date(value):
-            raise ValueError("date should be specified in format: YYYY-m-d.")
+            raise ValueError("should be specified in format: YYYY-m-d.")
         return value
     
     @validator("rating")
     def rating_validator(cls, value: int) -> int:
         if not (0 <= value <= 10):
-            raise ValueError("rating should be specified in range 0-10.")
+            raise ValueError("should be specified in range 0-10.")
         return value
 
     @validator("genres_ids")
@@ -69,14 +69,14 @@ class FilmsQuerySchema(BaseModel):
                 int(genre)
 
         except ValueError:
-            raise ValueError("genres_ids should be specified like string in format: 1,2,3.")
+            raise ValueError("should be specified like string in format: 1,2,3.")
 
         return value
 
     @validator("page")
     def page_validator(cls, value: int) -> int:
         if value <= 0:
-            raise ValueError("page should be specified like positive integer.")
+            raise ValueError("should be specified like positive integer.")
 
         return value
 
@@ -91,7 +91,9 @@ class FilmBodySchema(BaseModel):
     genres_ids: Optional[list[int]]
 
     @validator("premiere_date")
-    def premiere_dates_validator(cls, value: str) -> str:
+    def premiere_dates_validator(cls, value: str) -> Optional[str]:
+        if not value:
+            return
         if not validate_date(value):
             raise ValueError("date should be specified in format: YYYY-m-d.")
         return value

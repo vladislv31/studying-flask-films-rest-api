@@ -21,7 +21,6 @@ class FilmsResource(Resource):
     """/films route resource."""
 
     def get(self):
-        int("asd")
         query = FilmsQuerySchema.parse_obj(request.args)
         films = get_all_films(query)
         return {
