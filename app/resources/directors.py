@@ -6,8 +6,8 @@ from app import api
 from app.schemas.directors import DirectorCreateSchema, DirectorUpdateSchema
 from app.domain.directors import get_all_directors, get_one_director, create_director, update_director, delete_director
 
-from app.utils.exceptions import  EntityIdError
-from app.utils.responses import bad_request_response_message, successful_response_message
+from app.utils.exceptions import EntityIdError
+from app.utils.responses import successful_response_message, not_found_request_response_message
 
 
 class DirectorsResource(Resource):
@@ -34,7 +34,7 @@ class SingleDirectorsResource(Resource):
             return director.dict()
 
         except EntityIdError as err:
-            return bad_request_response_message(err)
+            return not_found_request_response_message(err)
 
     @login_required
     def put(self, director_id):
@@ -44,7 +44,7 @@ class SingleDirectorsResource(Resource):
             return successful_response_message("Director has been updated.", director.dict())
 
         except EntityIdError as err:
-            return bad_request_response_message(err)
+            return not_found_request_response_message(err)
 
     @login_required
     def delete(self, director_id):
@@ -53,7 +53,7 @@ class SingleDirectorsResource(Resource):
             return successful_response_message("Director has been deleted.")
 
         except EntityIdError as err:
-            return bad_request_response_message(err)
+            return not_found_request_response_message(err)
 
 
 api.add_resource(DirectorsResource, "/directors")

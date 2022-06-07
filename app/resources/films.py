@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from app import api
 from app.domain.films import get_all_films, create_film, update_film, delete_film, get_one_film
 
-from app.utils.exceptions import EntityIdError
+from app.utils.exceptions import EntityIdError, GenreIdError
 
 
 from app.utils.responses import successful_response_message, \
@@ -39,7 +39,7 @@ class FilmsResource(Resource):
 
             return successful_response_message("Film has been added.", film.dict())
 
-        except EntityIdError as err:
+        except GenreIdError as err:
             return bad_request_response_message(err)
 
 
@@ -51,7 +51,7 @@ class SingleFilmsResource(Resource):
             return film.dict()
 
         except EntityIdError as err:
-            return bad_request_response_message(err)
+            return not_found_request_response_message(err)
 
     @login_required
     def put(self, film_id):
@@ -72,7 +72,7 @@ class SingleFilmsResource(Resource):
             return successful_response_message("Film has been deleted.")
 
         except EntityIdError as err:
-            return bad_request_response_message(err)
+            return not_found_request_response_message(err)
 
 
 api.add_resource(FilmsResource, "/films")

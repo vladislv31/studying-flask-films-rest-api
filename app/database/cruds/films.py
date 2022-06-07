@@ -1,6 +1,6 @@
 from app import app, db
 
-from app.utils.exceptions import EntityIdError
+from app.utils.exceptions import EntityIdError, GenreIdError
 from app.models import Film, Genre, Director
 
 from typing import Any
@@ -43,7 +43,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
                     genre = Genre.query.filter_by(id=genre_id).first()
 
                     if not genre:
-                        raise EntityIdError("genre with such index not found: {}".format(genre_id))
+                        raise GenreIdError("genre with such id not found: {}".format(genre_id))
 
                     film.genres.append(genre)
 
