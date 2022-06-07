@@ -1,4 +1,4 @@
-from flask_pydantic import validate
+from flask import request
 from flask_restful import Resource
 from flask_login import login_required
 
@@ -7,7 +7,6 @@ from app.schemas.genres import GenreCreateSchema, GenreUpdateSchema
 from app.domain.genres import get_all_genres, get_one_genre, create_genre, update_genre, delete_genre
 
 from app.utils.exceptions import GenreAlreadyExistsError, EntityIdError
-
 from app.utils.responses import bad_request_response_message, successful_response_message
 
 
@@ -21,9 +20,9 @@ class GenresResource(Resource):
         }
 
     @login_required
-    @validate()
-    def post(self, body: GenreCreateSchema):
+    def post(self):
         try:
+            body = GenreCreateSchema.parse_obj(request.json)
             genre = create_genre(body)
             return successful_response_message("Genre has been created.", genre.dict())
 
@@ -42,9 +41,9 @@ class SingleGenresResource(Resource):
             return bad_request_response_message(err)
 
     @login_required
-    @validate()
-    def put(self, genre_id, body: GenreUpdateSchema):
+    def put(self, genre_id):
         try:
+            body = GenreUpdateSchema.parse_obj(request.json)
             genre = update_genre(genre_id, body)
             return successful_response_message("Genre has been updated.", genre.dict())
 
