@@ -23,34 +23,25 @@ def check_access(func):
     return wrapper
 
 
-def get_all_films(data: FilmsQuerySchema):
+def get_all_films(data: FilmsQuerySchema) -> list[FilmSchema]:
     films = FilmsCRUD().read(data)
-
-    return {
-        "count": len(films),
-        "result": [
-            FilmSchema.from_orm(film).dict() for film in films
-        ]
-    }
+    return [FilmSchema.from_orm(film) for film in films]
 
 
-def get_one_film(film_id: int):
+def get_one_film(film_id: int) -> FilmSchema:
     film = FilmsCRUD().read_one(film_id)
+    return FilmSchema.from_orm(film)
 
-    return FilmSchema.from_orm(film).dict()
 
-
-def create_film(data: FilmWithUserIdBodySchema):
+def create_film(data: FilmWithUserIdBodySchema) -> FilmSchema:
     film = FilmsCRUD().create(data)
-
-    return FilmSchema.from_orm(film).dict()
+    return FilmSchema.from_orm(film)
 
 
 @check_access
-def update_film(film_id: int, data: FilmBodySchema):
+def update_film(film_id: int, data: FilmBodySchema) -> FilmSchema:
     film = FilmsCRUD().update(film_id, data)
-
-    return FilmSchema.from_orm(film).dict()
+    return FilmSchema.from_orm(film)
 
 
 @check_access
