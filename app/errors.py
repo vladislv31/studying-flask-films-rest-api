@@ -2,7 +2,8 @@ import traceback
 
 from werkzeug.exceptions import NotFound
 
-from flask import jsonify
+from flask import jsonify, request
+from flask_login import current_user
 
 from pydantic import ValidationError
 
@@ -17,6 +18,12 @@ def handle_not_found_error(_):
 
 @app.errorhandler(UnauthorizedError)
 def handle_unauthorized_error(_):
+    app.logger.info(
+        "%s tried %s %s with no access for it.",
+        current_user.username,
+        request.method,
+        request.path
+    )
     return jsonify({"message": "Access denied."}), 401
 
 
@@ -36,5 +43,7 @@ def handle_validation_error(err):
 
 @app.errorhandler(Exception)
 def handle_unexpected_errors(_):
-    traceback.print_exc()  # logging in future
+    app.logger.critical("There is a critical error. Look traceback below.")
+    app.logger.critical(traceback.format_exc())
+
     return jsonify({"message": "Internal server error."}), 500

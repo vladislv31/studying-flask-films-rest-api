@@ -8,6 +8,7 @@ from app.domain.directors import get_all_directors, get_one_director, create_dir
 
 from app.utils.exceptions import EntityIdError
 from app.utils.responses import successful_response_message, not_found_request_response_message
+from app.utils.logging.directors import log_created_director, log_updated_director, log_deleted_director
 
 
 class DirectorsResource(Resource):
@@ -23,6 +24,9 @@ class DirectorsResource(Resource):
     def post(self):
         body = DirectorCreateSchema.parse_obj(request.json)
         director = create_director(body)
+
+        log_created_director(director)
+
         return successful_response_message("Director has been created.", director.dict())
 
 
@@ -41,6 +45,9 @@ class SingleDirectorsResource(Resource):
         try:
             body = DirectorUpdateSchema.parse_obj(request.json)
             director = update_director(director_id, body)
+
+            log_updated_director(director)
+
             return successful_response_message("Director has been updated.", director.dict())
 
         except EntityIdError as err:
@@ -50,6 +57,8 @@ class SingleDirectorsResource(Resource):
     def delete(self, director_id):
         try:
             delete_director(director_id)
+            log_deleted_director(director_id)
+
             return successful_response_message("Director has been deleted.")
 
         except EntityIdError as err:
