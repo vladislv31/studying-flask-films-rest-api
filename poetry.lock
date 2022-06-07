@@ -143,18 +143,6 @@ Flask = ">=0.9"
 Flask-SQLAlchemy = ">=1.0"
 
 [[package]]
-name = "flask-pydantic"
-version = "0.9.0"
-description = "Flask extension for integration with Pydantic library"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-Flask = "*"
-pydantic = ">=1.7"
-
-[[package]]
 name = "flask-restful"
 version = "0.3.9"
 description = "Simple framework for creating REST APIs"
@@ -504,7 +492,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "b255d8d915fba5b7bac1098404ef0bd879352f32738074db23bdda90df9e716a"
+content-hash = "d9ce979b1514f67c7c45efad164c97346818a93ab6cc25423e320783868c376a"
 
 [metadata.files]
 alembic = [
@@ -554,10 +542,6 @@ flask-login = [
 flask-migrate = [
     {file = "Flask-Migrate-3.1.0.tar.gz", hash = "sha256:57d6060839e3a7f150eaab6fe4e726d9e3e7cffe2150fb223d73f92421c6d1d9"},
     {file = "Flask_Migrate-3.1.0-py3-none-any.whl", hash = "sha256:a6498706241aba6be7a251078de9cf166d74307bca41a4ca3e403c9d39e2f897"},
-]
-flask-pydantic = [
-    {file = "Flask-Pydantic-0.9.0.tar.gz", hash = "sha256:fb5812f64f9605fb047960637e2c15c8eab955e43d2df01056e72f26c3cfcc64"},
-    {file = "Flask_Pydantic-0.9.0-py3-none-any.whl", hash = "sha256:cc80dfdb5177bcaeb3cb8c6f4febc4c4bd2c6cad313b80ae45578b37791f2856"},
 ]
 flask-restful = [
     {file = "Flask-RESTful-0.3.9.tar.gz", hash = "sha256:ccec650b835d48192138c85329ae03735e6ced58e9b2d9c2146d6c84c06fa53e"},

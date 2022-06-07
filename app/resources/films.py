@@ -1,8 +1,8 @@
 """Module implements and connects resources for films."""
 
+from flask import request
 from flask_restful import Resource
 from flask_login import login_required, current_user
-from flask_pydantic import validate
 
 from app import api
 from app.domain.films import get_all_films, create_film, update_film, delete_film, get_one_film
@@ -20,8 +20,8 @@ from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBo
 class FilmsResource(Resource):
     """/films route resource."""
 
-    @validate()
-    def get(self, query: FilmsQuerySchema):
+    def get(self):
+        query = FilmsQuerySchema.parse_obj(request.args)
         films = get_all_films(query)
         return {
             "count": len(films),
@@ -29,10 +29,10 @@ class FilmsResource(Resource):
         }
 
     @login_required
-    @validate()
-    def post(self, body: FilmBodySchema):
+    def post(self):
         """Adds film into database."""
         try:
+            body = FilmBodySchema.parse_obj(request.json)
             film = create_film(FilmWithUserIdBodySchema.parse_obj(
                 body.dict() | {"user_id": current_user.id}
             ))
@@ -54,11 +54,12 @@ class SingleFilmsResource(Resource):
             return bad_request_response_message(err)
 
     @login_required
-    @validate()
-    def put(self, film_id, body: FilmBodySchema):
+    def put(self, film_id):
         """Updates specific film."""
         try:
+            body = FilmBodySchema.parse_obj(request.json)
             film = update_film(film_id, body)
+
             return successful_response_message("Film has been updated.", film.dict())
 
         except EntityIdError as err:
