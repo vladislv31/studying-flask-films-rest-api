@@ -10,6 +10,8 @@ from app.utils.exceptions import GenreAlreadyExistsError, EntityIdError
 from app.utils.responses import bad_request_response_message, successful_response_message, \
     not_found_request_response_message
 
+from app.utils.logging.genres import log_created_genre, log_updated_genre, log_deleted_genre
+
 
 class GenresResource(Resource):
 
@@ -25,6 +27,9 @@ class GenresResource(Resource):
         try:
             body = GenreCreateSchema.parse_obj(request.json)
             genre = create_genre(body)
+
+            log_created_genre(genre)
+
             return successful_response_message("Genre has been created.", genre.dict())
 
         except GenreAlreadyExistsError as err:
@@ -46,6 +51,9 @@ class SingleGenresResource(Resource):
         try:
             body = GenreUpdateSchema.parse_obj(request.json)
             genre = update_genre(genre_id, body)
+
+            log_updated_genre(genre)
+
             return successful_response_message("Genre has been updated.", genre.dict())
 
         except GenreAlreadyExistsError as err:
@@ -58,6 +66,8 @@ class SingleGenresResource(Resource):
     def delete(self, genre_id):
         try:
             delete_genre(genre_id)
+            log_deleted_genre(genre_id)
+
             return successful_response_message("Genre has been deleted.")
 
         except EntityIdError as err:

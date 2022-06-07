@@ -62,9 +62,11 @@ def login():
 
     if user and check_password_hash(user.password, password):
         login_user(user)
+        app.logger.info("%s logged in successfully.", user.username)
 
         return jsonify({"message": "Authentication successfully."}), 200
 
+    app.logger.info("%s failed logging.", user.username)
     return jsonify({"message": "Incorrect username or password."}), 400
 
 

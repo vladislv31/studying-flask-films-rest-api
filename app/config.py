@@ -6,6 +6,7 @@ load_dotenv()
 
 
 class Config:
+    ENV = "production"
     DEBUG = False
     DEVELOPMENT = False
     SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key")
@@ -20,6 +21,7 @@ class ProductionConfig(Config):
 
 
 class DevelopmentConfig(Config):
+    ENV = "development"
     DEBUG = True
     DEVELOPMENT = True
 
