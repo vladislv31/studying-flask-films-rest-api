@@ -15,8 +15,3 @@ def bad_request_response_message(message):
 
 def not_found_request_response_message(message):
     return {"message": str(message)}, 404
-
-
-def internal_server_response_message(message="Internal server error."):
-    return {"message": str(message)}, 500
-
