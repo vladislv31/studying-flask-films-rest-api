@@ -23,7 +23,10 @@ class FilmsResource(Resource):
     @validate()
     def get(self, query: FilmsQuerySchema):
         films = get_all_films(query)
-        return films
+        return {
+            "count": len(films),
+            "result": [film.dict() for film in films]
+        }
 
     @login_required
     @validate()
@@ -34,7 +37,7 @@ class FilmsResource(Resource):
                 body.dict() | {"user_id": current_user.id}
             ))
 
-            return successful_response_message("Film has been added.", film)
+            return successful_response_message("Film has been added.", film.dict())
 
         except EntityIdError as err:
             return bad_request_response_message(err)
@@ -45,8 +48,7 @@ class SingleFilmsResource(Resource):
     def get(self, film_id):
         try:
             film = get_one_film(film_id)
-
-            return film
+            return film.dict()
 
         except EntityIdError as err:
             return bad_request_response_message(err)
@@ -56,9 +58,8 @@ class SingleFilmsResource(Resource):
     def put(self, film_id, body: FilmBodySchema):
         """Updates specific film."""
         try:
-            film =  update_film(film_id, body)
-
-            return successful_response_message("Film has been updated.", film)
+            film = update_film(film_id, body)
+            return successful_response_message("Film has been updated.", film.dict())
 
         except EntityIdError as err:
             return not_found_request_response_message(err)
@@ -67,7 +68,6 @@ class SingleFilmsResource(Resource):
     def delete(self, film_id):
         try:
             delete_film(film_id)
-
             return successful_response_message("Film has been deleted.")
 
         except EntityIdError as err:

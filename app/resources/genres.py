@@ -14,14 +14,18 @@ from app.utils.responses import bad_request_response_message, successful_respons
 class GenresResource(Resource):
 
     def get(self):
-        return get_all_genres()
+        genres = get_all_genres()
+        return {
+            "count": len(genres),
+            "result": [genre.dict() for genre in genres]
+        }
 
     @login_required
     @validate()
     def post(self, body: GenreCreateSchema):
         try:
             genre = create_genre(body)
-            return successful_response_message("Genre has been created.", genre)
+            return successful_response_message("Genre has been created.", genre.dict())
 
         except GenreAlreadyExistsError as err:
             return bad_request_response_message(err)
@@ -31,7 +35,8 @@ class SingleGenresResource(Resource):
 
     def get(self, genre_id):
         try:
-            return get_one_genre(genre_id)
+            genre = get_one_genre(genre_id)
+            return genre.dict()
 
         except EntityIdError as err:
             return bad_request_response_message(err)
@@ -41,8 +46,7 @@ class SingleGenresResource(Resource):
     def put(self, genre_id, body: GenreUpdateSchema):
         try:
             genre = update_genre(genre_id, body)
-
-            return successful_response_message("Genre has been updated.", genre)
+            return successful_response_message("Genre has been updated.", genre.dict())
 
         except GenreAlreadyExistsError as err:
             return bad_request_response_message(err)
