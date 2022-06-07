@@ -3,7 +3,7 @@ from flask_restful import Resource
 from flask_login import login_required
 
 from app import api
-from app.database.schemas.genres import GenreCreateSchema, GenreUpdateSchema
+from app.schemas.genres import GenreCreateSchema, GenreUpdateSchema
 from app.domain.genres import get_all_genres, get_one_genre, create_genre, update_genre, delete_genre
 
 from app.utils.exceptions import GenreAlreadyExistsError, EntityIdError

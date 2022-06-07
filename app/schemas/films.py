@@ -4,10 +4,10 @@ import datetime
 
 from pydantic import BaseModel, validator
 
-from app.database.schemas.genres import GenreSchema
-from app.database.schemas.directors import DirectorSchema
-from app.database.schemas.users import UserSchema
-from app.database.schemas.enums import SortByEnum, SortOrderEnum
+from app.schemas.genres import GenreSchema
+from app.schemas.directors import DirectorSchema
+from app.schemas.users import UserSchema
+from app.schemas.enums import SortByEnum, SortOrderEnum
 from app.utils.helpers import validate_date
 
 
