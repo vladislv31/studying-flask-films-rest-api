@@ -1,12 +1,13 @@
 """Module implemets auth functionality."""
 
 from flask import request, jsonify
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app, db
 from app.models import User, Role
+from app.schemas.users import UserWithRoleSchema
 
 
 login_manager = LoginManager()
@@ -23,6 +24,12 @@ def load_user(user_id):
 def unauthorized_handler():
     """Returns message if no authorized."""
     return {"message": "Unauthenticated."}, 401
+
+
+@app.route("/user", methods=["GET"])
+@login_required
+def user_route():
+    return UserWithRoleSchema.from_orm(current_user).dict()
 
 
 @app.route("/register", methods=["POST"])

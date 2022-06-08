@@ -20,13 +20,14 @@ class Role(db.Model):
 
 
 class User(db.Model, UserMixin):
-    
+
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    role = db.relationship("Role")
 
     def is_admin(self):
         role = Role.query.filter_by(id=self.role_id).first()
@@ -51,7 +52,7 @@ class Director(db.Model):
     def __repr__(self):
         return f"<Director first_name={self.first_name}, last_name={self.last_name}>"
 
-    
+
 film_genres = db.Table("film_genres",
     db.Column("film_id", db.Integer, db.ForeignKey("films.id", ondelete="CASCADE")),
     db.Column("genre_id", db.Integer, db.ForeignKey("genres.id", ondelete="CASCADE")),
