@@ -18,7 +18,7 @@ from app.utils.orm import films_search_filter,  \
 class FilmsCRUD(BaseCRUD[Film, Any, Any]):
     
     def __init__(self):
-        super().__init__(Film)
+        super().__init__(Film, db.session)
 
     def create(self, data: FilmWithUserIdBodySchema) -> Film:
         try:
@@ -81,9 +81,6 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
 
         return films
 
-    def read_one(self, id_: int) -> Film:
-        return super().read_one(db.session, id_)
-
     def update(self, id_: int, data: FilmBodySchema) -> Film:
         try:
             if data.director_id:
@@ -95,7 +92,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
             film = Film.query.filter_by(id=id_).first()
 
             if not film:
-                raise EntityIdError("Film with such ID not found: {}".format(data.id))
+                raise EntityIdError("Film with such ID not found: {}".format(id_))
 
             film.title = data.title
             film.premiere_date = data.premiere_date
@@ -123,7 +120,3 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
         except Exception as err:
             db.session.rollback()
             raise err
-
-    def delete(self, id_: int) -> None:
-        super().delete(db.session, id_)
-
