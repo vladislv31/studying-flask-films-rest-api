@@ -16,6 +16,13 @@ def films_director_filter(query, director_id):
     return query
 
 
+def films_rating_filter(query, rating):
+    if rating:
+        query = query.filter(Film.rating == rating)
+
+    return query
+
+
 def films_premiere_date_filter(query, start_premiere_date, end_premiere_date):
     if start_premiere_date:
         query = query.filter(Film.premiere_date >= start_premiere_date)

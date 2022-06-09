@@ -1,6 +1,6 @@
 from app import app, db
 
-from app.utils.exceptions import EntityIdError, GenreIdError
+from app.utils.exceptions import EntityIdError, GenreIdError, DirectorIdError
 from app.models import Film, Genre, Director
 
 from typing import Any
@@ -12,7 +12,8 @@ from app.utils.orm import films_search_filter,  \
     films_director_filter, \
     films_premiere_date_filter, \
     films_genres_ids_filter, \
-    films_ordering_sorting
+    films_ordering_sorting, \
+    films_rating_filter
 
 
 class FilmsCRUD(BaseCRUD[Film, Any, Any]):
@@ -26,7 +27,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
                 director = Director.query.filter_by(id=data.director_id).first()
 
                 if not director:
-                    raise EntityIdError("director with such id not found: {}".format(data.director_id))
+                    raise DirectorIdError("director with such id not found: {}".format(data.director_id))
 
             film = Film(
                 title=data.title,
@@ -61,6 +62,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
         sort_order = data.sort_order
         sort_by = data.sort_by
         director_id = data.director_id
+        rating = data.rating
         start_premiere_date = data.start_premiere_date
         end_premiere_date = data.end_premiere_date
         genres_ids = data.genres_ids
@@ -72,6 +74,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
 
         films_query = films_search_filter(films_query, search)
         films_query = films_director_filter(films_query, director_id)
+        films_query = films_rating_filter(films_query, rating)
         films_query = films_premiere_date_filter(films_query, start_premiere_date, end_premiere_date)
         films_query = films_genres_ids_filter(films_query, genres_ids)
         films_query = films_ordering_sorting(films_query, sort_by, sort_order)
@@ -87,7 +90,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
                 director = Director.query.filter_by(id=data.director_id).first()
 
                 if not director:
-                    raise EntityIdError("director with such id not found: {}".format(data.director_id))
+                    raise DirectorIdError("director with such id not found: {}".format(data.director_id))
 
             film = Film.query.filter_by(id=id_).first()
 
@@ -108,7 +111,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
                     genre = Genre.query.filter_by(id=genre_id).first()
 
                     if not genre:
-                        raise EntityIdError("genre with such ID not found: {}.".format(genre_id))
+                        raise GenreIdError("genre with such ID not found: {}.".format(genre_id))
 
                     film.genres.append(genre)
             
