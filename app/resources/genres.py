@@ -1,8 +1,7 @@
 from flask import request
-from flask_restful import Resource
+from flask_restx import Resource, Namespace
 from flask_login import login_required
 
-from app import api
 from app.schemas.genres import GenreCreateSchema, GenreUpdateSchema
 from app.domain.genres import get_all_genres, get_one_genre, create_genre, update_genre, delete_genre
 
@@ -12,9 +11,16 @@ from app.utils.responses import bad_request_response_message, successful_respons
 
 from app.utils.logging.genres import log_created_genre, log_updated_genre, log_deleted_genre
 
+from app.resources.models.genres import genres_response, genres_body, genres_add_response, genres_update_response, \
+    genres_delete_response, genre_response
+from app.resources.parsers.genres import genres_body_parser
+
+api = Namespace("genres", "Genres operations")
+
 
 class GenresResource(Resource):
 
+    @api.response(200, "Success", genres_response)
     def get(self):
         genres = get_all_genres()
         return {
@@ -23,10 +29,14 @@ class GenresResource(Resource):
         }
 
     @login_required
+    @api.expect(genres_body)
+    @api.response(200, "Success", genres_add_response)
+    @api.response(400, "Data validation error")
+    @api.response(401, "Unauthenticated")
     def post(self):
         try:
-            body = GenreCreateSchema.parse_obj(request.json)
-            genre = create_genre(body)
+            body = genres_body_parser.parse_args()
+            genre = create_genre(GenreCreateSchema.parse_obj(body))
 
             log_created_genre(genre)
 
@@ -36,8 +46,11 @@ class GenresResource(Resource):
             return bad_request_response_message(err)
 
 
+@api.doc(params={"genre_id": "Genre ID"})
+@api.response(404, "Genre not found")
 class SingleGenresResource(Resource):
 
+    @api.response(200, "Success", genre_response)
     def get(self, genre_id):
         try:
             genre = get_one_genre(genre_id)
@@ -47,10 +60,14 @@ class SingleGenresResource(Resource):
             return not_found_request_response_message(err)
 
     @login_required
+    @api.expect(genres_body)
+    @api.response(200, "Success", genres_update_response)
+    @api.response(400, "Data validation error")
+    @api.response(401, "Unauthenticated")
     def put(self, genre_id):
         try:
-            body = GenreUpdateSchema.parse_obj(request.json)
-            genre = update_genre(genre_id, body)
+            body = genres_body_parser.parse_args()
+            genre = update_genre(genre_id, GenreUpdateSchema.parse_obj(body))
 
             log_updated_genre(genre)
 
@@ -63,6 +80,8 @@ class SingleGenresResource(Resource):
             return not_found_request_response_message(err)
 
     @login_required
+    @api.response(200, "Success", genres_delete_response)
+    @api.response(401, "Unauthenticated")
     def delete(self, genre_id):
         try:
             delete_genre(genre_id)
@@ -72,7 +91,7 @@ class SingleGenresResource(Resource):
 
         except EntityIdError as err:
             return not_found_request_response_message(err)
-        
 
-api.add_resource(GenresResource, "/genres")
-api.add_resource(SingleGenresResource, "/genres/<int:genre_id>")
+
+api.add_resource(GenresResource, "/")
+api.add_resource(SingleGenresResource, "/<int:genre_id>")

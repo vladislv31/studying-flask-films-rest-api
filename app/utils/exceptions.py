@@ -4,7 +4,11 @@ class EntityIdError(ValueError):
     pass
 
 
-class GenreIdError(ValueError):
+class DirectorIdError(EntityIdError):
+    pass
+
+
+class GenreIdError(EntityIdError):
     pass
 
 

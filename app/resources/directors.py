@@ -1,8 +1,7 @@
 from flask import request
-from flask_restful import Resource
+from flask_restx import Resource, Namespace
 from flask_login import login_required
 
-from app import api
 from app.schemas.directors import DirectorCreateSchema, DirectorUpdateSchema
 from app.domain.directors import get_all_directors, get_one_director, create_director, update_director, delete_director
 
@@ -10,9 +9,17 @@ from app.utils.exceptions import EntityIdError
 from app.utils.responses import successful_response_message, not_found_request_response_message
 from app.utils.logging.directors import log_created_director, log_updated_director, log_deleted_director
 
+from app.resources.parsers.directors import directors_body_parser
+from app.resources.models.directors import director_response, directors_response, directors_body, \
+    directors_add_response, directors_update_response, directors_delete_response
+
+
+api = Namespace("directors", "Directors operations")
+
 
 class DirectorsResource(Resource):
 
+    @api.response(200, "Success", directors_response)
     def get(self):
         directors = get_all_directors()
         return {
@@ -21,17 +28,24 @@ class DirectorsResource(Resource):
         }
 
     @login_required
+    @api.expect(directors_body)
+    @api.response(200, "Success", directors_add_response)
+    @api.response(400, "Data validation error")
+    @api.response(401, "Unauthenticated")
     def post(self):
-        body = DirectorCreateSchema.parse_obj(request.json)
-        director = create_director(body)
+        body = directors_body_parser.parse_args()
+        director = create_director(DirectorCreateSchema.parse_obj(body))
 
         log_created_director(director)
 
         return successful_response_message("Director has been created.", director.dict())
 
 
+@api.doc(params={"director_id": "Director ID"})
+@api.response(404, "Director not found")
 class SingleDirectorsResource(Resource):
 
+    @api.response(200, "Success", director_response)
     def get(self, director_id):
         try:
             director = get_one_director(director_id)
@@ -41,10 +55,14 @@ class SingleDirectorsResource(Resource):
             return not_found_request_response_message(err)
 
     @login_required
+    @api.expect(directors_body)
+    @api.response(200, "Success", directors_update_response)
+    @api.response(400, "Data validation error")
+    @api.response(401, "Unauthenticated")
     def put(self, director_id):
         try:
-            body = DirectorUpdateSchema.parse_obj(request.json)
-            director = update_director(director_id, body)
+            body = directors_body_parser.parse_args()
+            director = update_director(director_id, DirectorUpdateSchema.parse_obj(body))
 
             log_updated_director(director)
 
@@ -54,6 +72,8 @@ class SingleDirectorsResource(Resource):
             return not_found_request_response_message(err)
 
     @login_required
+    @api.response(200, "Success", directors_delete_response)
+    @api.response(401, "Unauthenticated")
     def delete(self, director_id):
         try:
             delete_director(director_id)
@@ -65,6 +85,5 @@ class SingleDirectorsResource(Resource):
             return not_found_request_response_message(err)
 
 
-api.add_resource(DirectorsResource, "/directors")
-api.add_resource(SingleDirectorsResource, "/directors/<int:director_id>")
-
+api.add_resource(DirectorsResource, "/")
+api.add_resource(SingleDirectorsResource, "/<int:director_id>")
