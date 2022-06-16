@@ -1,14 +1,14 @@
 from app import app, db
 
 from app.utils.exceptions import EntityIdError, GenreIdError, DirectorIdError
-from app.models import Film, Genre, Director
+from app.database.models import Film, Genre, Director
 
 from typing import Any
 
 from app.database.cruds.base import BaseCRUD
-from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
+from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema, FilmSchema
 
-from app.utils.orm import films_search_filter,  \
+from app.database.utils.orm import films_search_filter,  \
     films_director_filter, \
     films_premiere_date_filter, \
     films_genres_ids_filter, \
@@ -16,12 +16,12 @@ from app.utils.orm import films_search_filter,  \
     films_rating_filter
 
 
-class FilmsCRUD(BaseCRUD[Film, Any, Any]):
+class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
     
     def __init__(self):
-        super().__init__(Film, db.session)
+        super().__init__(Film, FilmSchema, db.session)
 
-    def create(self, data: FilmWithUserIdBodySchema) -> Film:
+    def create(self, data: FilmWithUserIdBodySchema) -> FilmSchema:
         try:
             if data.director_id:
                 director = Director.query.filter_by(id=data.director_id).first()
@@ -51,13 +51,13 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
             db.session.add(film)
             db.session.commit()
 
-            return film
+            return FilmSchema.from_orm(film)
 
         except Exception as ex:
             db.session.rollback()
             raise ex
 
-    def read(self, data: FilmsQuerySchema) -> list[Film]:
+    def read(self, data: FilmsQuerySchema) -> list[FilmSchema]:
         search = data.search
         sort_order = data.sort_order
         sort_by = data.sort_by
@@ -82,9 +82,9 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
         films_query = films_query.paginate(page, films_per_page, False)
         films = films_query.items
 
-        return films
+        return [FilmSchema.from_orm(film) for film in films]
 
-    def update(self, id_: int, data: FilmBodySchema) -> Film:
+    def update(self, id_: int, data: FilmBodySchema) -> FilmSchema:
         try:
             if data.director_id:
                 director = Director.query.filter_by(id=data.director_id).first()
@@ -118,7 +118,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any]):
             db.session.add(film)
             db.session.commit()
 
-            return film
+            return FilmSchema.from_orm(film)
 
         except Exception as err:
             db.session.rollback()

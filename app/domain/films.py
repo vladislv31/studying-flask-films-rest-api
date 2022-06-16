@@ -4,6 +4,7 @@ from flask_login import current_user
 
 from app.schemas.films import FilmsQuerySchema, FilmSchema, FilmWithUserIdBodySchema, FilmBodySchema
 from app.database.cruds.films import FilmsCRUD
+from app.database.cruds.base import AbstractCRUD
 
 from app.utils.exceptions import UnauthorizedError
 
@@ -12,10 +13,10 @@ def check_access(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        film_id = args[0]
+        film_id = args[1]
         film = FilmsCRUD().read_one(film_id)
 
-        if film.user_id != current_user.id and not current_user.is_admin():
+        if film.user.id != current_user.id and not current_user.is_admin():
             raise UnauthorizedError()
 
         return func(*args, **kwargs)
@@ -23,28 +24,28 @@ def check_access(func):
     return wrapper
 
 
-def get_all_films(data: FilmsQuerySchema) -> list[FilmSchema]:
-    films = FilmsCRUD().read(data)
-    return [FilmSchema.from_orm(film) for film in films]
+def get_all_films(crud: AbstractCRUD, data: FilmsQuerySchema) -> list[FilmSchema]:
+    films = crud.read(data)
+    return films
 
 
-def get_one_film(film_id: int) -> FilmSchema:
-    film = FilmsCRUD().read_one(film_id)
-    return FilmSchema.from_orm(film)
+def get_one_film(crud: AbstractCRUD, film_id: int) -> FilmSchema:
+    film = crud.read_one(film_id)
+    return film
 
 
-def create_film(data: FilmWithUserIdBodySchema) -> FilmSchema:
-    film = FilmsCRUD().create(data)
-    return FilmSchema.from_orm(film)
-
-
-@check_access
-def update_film(film_id: int, data: FilmBodySchema) -> FilmSchema:
-    film = FilmsCRUD().update(film_id, data)
-    return FilmSchema.from_orm(film)
+def create_film(crud: AbstractCRUD, data: FilmWithUserIdBodySchema) -> FilmSchema:
+    film = crud.create(data)
+    return film
 
 
 @check_access
-def delete_film(film_id: int):
-    FilmsCRUD().delete(film_id)
+def update_film(crud: AbstractCRUD, film_id: int, data: FilmBodySchema) -> FilmSchema:
+    film = crud.update(film_id, data)
+    return film
+
+
+@check_access
+def delete_film(crud: AbstractCRUD, film_id: int):
+    crud.delete(film_id)
 

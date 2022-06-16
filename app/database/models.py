@@ -1,11 +1,6 @@
-from datetime import date
-
 from flask_login import UserMixin
 
 from app import db
-from app.utils.helpers import validate_date
-
-from sqlalchemy.orm import validates
 
 
 class Role(db.Model):

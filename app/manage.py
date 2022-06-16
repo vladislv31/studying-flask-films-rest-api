@@ -8,7 +8,7 @@ from faker import Faker
 from werkzeug.security import generate_password_hash
 
 from app import app, db
-from app.models import Genre, Director, Film, User, Role
+from app.database.models import Genre, Director, Film, User, Role
 
 
 faker_ = Faker()

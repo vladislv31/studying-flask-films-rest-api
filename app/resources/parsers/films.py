@@ -1,6 +1,6 @@
 from flask_restx import reqparse
 
-from app.utils.validators import sort_by_validator, sort_order_validator, date_validator, rating_validator, \
+from app.resources.utils.validators import sort_by_validator, sort_order_validator, date_validator, rating_validator, \
     genres_ids_validator, genres_ids_list_validator, page_validator
 
 

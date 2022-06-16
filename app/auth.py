@@ -7,7 +7,7 @@ from flask_restx import Resource, fields, Namespace
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app, api, db
-from app.models import User, Role
+from app.database.models import User, Role
 from app.schemas.users import UserWithRoleSchema
 from app.resources.models.auth import login_response, register_response, logout_response
 from app.resources.models.users import user_info
