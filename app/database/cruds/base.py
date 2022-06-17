@@ -1,4 +1,6 @@
-from typing import Generic, TypeVar, Type, Any, Optional
+from abc import ABC
+
+from typing import Generic, TypeVar, Type
 
 from sqlalchemy.orm import Session, declarative_base
 from pydantic import BaseModel
@@ -11,24 +13,44 @@ Base = declarative_base()
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+ReturnSchemaType = TypeVar("ReturnSchemaType", bound=BaseModel)
 
 
-class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class AbstractCRUD(ABC):
 
-    def __init__(self, model: Type[ModelType], db: Session):
+    def create(self, data: CreateSchemaType) -> ReturnSchemaType:
+        pass
+
+    def read(self, *args, **kwargs) -> list[ReturnSchemaType]:
+        pass
+
+    def read_one(self, id_: int) -> ReturnSchemaType:
+        pass
+
+    def update(self, id_: int, data: UpdateSchemaType) -> ReturnSchemaType:
+        pass
+
+    def delete(self, id_: int) -> None:
+        pass
+
+
+class BaseCRUD(AbstractCRUD, Generic[ModelType, CreateSchemaType, UpdateSchemaType, ReturnSchemaType]):
+
+    def __init__(self, model: Type[ModelType], schema: Type[ReturnSchemaType], db: Session):
         self.model = model
+        self.schema = schema
         self.db = db
 
-    def create(self, data: CreateSchemaType) -> ModelType:
+    def create(self, data: CreateSchemaType) -> ReturnSchemaType:
         obj = self.model(**(data.dict()))
 
         self.db.add(obj)
         self.db.commit()
         self.db.refresh(obj)
 
-        return obj
+        return self.schema.from_orm(obj)
 
-    def read(self, *args, **kwargs) -> list[ModelType]:
+    def read(self, *args, **kwargs) -> list[ReturnSchemaType]:
         query = self.db.query(self.model)
 
         page = kwargs.get("page", None)
@@ -45,17 +67,17 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         else:
             objs = query.all()
 
-        return objs
+        return [self.schema.from_orm(obj) for obj in objs]
 
-    def read_one(self, id_: int) -> ModelType:
+    def read_one(self, id_: int) -> ReturnSchemaType:
         obj = self.db.query(self.model).filter(self.model.id == id_).first()
 
         if not obj:
             raise EntityIdError("{} with such id not found: {}.".format(self.model.__name__, id_))
 
-        return obj
+        return self.schema.from_orm(obj)
 
-    def update(self, id_: int, data: UpdateSchemaType) -> ModelType:
+    def update(self, id_: int, data: UpdateSchemaType) -> ReturnSchemaType:
         obj = self.db.query(self.model).get(id_)
 
         if not obj:
@@ -68,7 +90,7 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.db.commit()
         self.db.refresh(obj)
 
-        return obj
+        return self.schema.from_orm(obj)
 
     def delete(self, id_: int) -> None:
         obj = self.db.query(self.model).filter_by(id=id_).first()

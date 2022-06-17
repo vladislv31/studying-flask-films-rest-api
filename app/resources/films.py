@@ -3,12 +3,14 @@
 from flask_restx import Resource, Namespace
 from flask_login import login_required, current_user
 
+from app.database.cruds.films import FilmsCRUD
+
 from app.domain.films import get_all_films, create_film, update_film, delete_film, get_one_film
 
 from app.utils.exceptions import EntityIdError, GenreIdError, DirectorIdError
 from app.utils.logging.films import log_created_film, log_updated_film, log_deleted_film
 
-from app.utils.responses import successful_response_message, \
+from app.resources.utils.responses import successful_response_message, \
     bad_request_response_message, \
     not_found_request_response_message
 
@@ -30,7 +32,10 @@ class FilmsResource(Resource):
     def get(self):
         """Returns films list."""
         query = films_query_parser.parse_args()
-        films = get_all_films(FilmsQuerySchema.parse_obj(query))
+
+        crud = FilmsCRUD()
+        films = get_all_films(crud, FilmsQuerySchema.parse_obj(query))
+
         return {
             "count": len(films),
             "result": [film.dict() for film in films]
@@ -44,7 +49,9 @@ class FilmsResource(Resource):
         """Adds film into database."""
         try:
             body = films_body_parser.parse_args()
-            film = create_film(FilmWithUserIdBodySchema.parse_obj(
+
+            crud = FilmsCRUD()
+            film = create_film(crud, FilmWithUserIdBodySchema.parse_obj(
                 body | {"user_id": current_user.id}
             ))
 
@@ -64,7 +71,9 @@ class SingleFilmsResource(Resource):
     def get(self, film_id):
         """Returns specific film."""
         try:
-            film = get_one_film(film_id)
+            crud = FilmsCRUD()
+            film = get_one_film(crud, film_id)
+
             return film.dict()
 
         except EntityIdError as err:
@@ -79,7 +88,9 @@ class SingleFilmsResource(Resource):
         """Updates specific film."""
         try:
             body = films_body_parser.parse_args()
-            film = update_film(film_id, FilmBodySchema.parse_obj(body))
+
+            crud = FilmsCRUD()
+            film = update_film(crud, film_id, FilmBodySchema.parse_obj(body))
 
             log_updated_film(film)
 
@@ -97,7 +108,9 @@ class SingleFilmsResource(Resource):
     def delete(self, film_id):
         """Deletes specific film."""
         try:
-            delete_film(film_id)
+            crud = FilmsCRUD()
+            delete_film(crud, film_id)
+
             log_deleted_film(film_id)
 
             return successful_response_message("Film has been deleted.")

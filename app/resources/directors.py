@@ -1,12 +1,13 @@
-from flask import request
 from flask_restx import Resource, Namespace
 from flask_login import login_required
+
+from app.database.cruds.directors import DirectorsCRUD
 
 from app.schemas.directors import DirectorCreateSchema, DirectorUpdateSchema
 from app.domain.directors import get_all_directors, get_one_director, create_director, update_director, delete_director
 
 from app.utils.exceptions import EntityIdError
-from app.utils.responses import successful_response_message, not_found_request_response_message
+from app.resources.utils.responses import successful_response_message, not_found_request_response_message
 from app.utils.logging.directors import log_created_director, log_updated_director, log_deleted_director
 
 from app.resources.parsers.directors import directors_body_parser
@@ -21,7 +22,9 @@ class DirectorsResource(Resource):
 
     @api.response(200, "Success", directors_response)
     def get(self):
-        directors = get_all_directors()
+        crud = DirectorsCRUD()
+        directors = get_all_directors(crud)
+
         return {
             "count": len(directors),
             "result": [director.dict() for director in directors]
@@ -34,7 +37,9 @@ class DirectorsResource(Resource):
     @api.response(401, "Unauthenticated")
     def post(self):
         body = directors_body_parser.parse_args()
-        director = create_director(DirectorCreateSchema.parse_obj(body))
+
+        crud = DirectorsCRUD()
+        director = create_director(crud, DirectorCreateSchema.parse_obj(body))
 
         log_created_director(director)
 
@@ -48,7 +53,9 @@ class SingleDirectorsResource(Resource):
     @api.response(200, "Success", director_response)
     def get(self, director_id):
         try:
-            director = get_one_director(director_id)
+            crud = DirectorsCRUD()
+            director = get_one_director(crud, director_id)
+
             return director.dict()
 
         except EntityIdError as err:
@@ -62,7 +69,9 @@ class SingleDirectorsResource(Resource):
     def put(self, director_id):
         try:
             body = directors_body_parser.parse_args()
-            director = update_director(director_id, DirectorUpdateSchema.parse_obj(body))
+
+            crud = DirectorsCRUD()
+            director = update_director(crud, director_id, DirectorUpdateSchema.parse_obj(body))
 
             log_updated_director(director)
 
@@ -76,7 +85,9 @@ class SingleDirectorsResource(Resource):
     @api.response(401, "Unauthenticated")
     def delete(self, director_id):
         try:
-            delete_director(director_id)
+            crud = DirectorsCRUD()
+            delete_director(crud, director_id)
+
             log_deleted_director(director_id)
 
             return successful_response_message("Director has been deleted.")
