@@ -1,3 +1,5 @@
+"""Module initing logging functionality."""
+
 import os
 import logging
 

@@ -1,16 +1,16 @@
+"""Module implements Films CRUD class."""
+
 from datetime import datetime
+from typing import Any
 
 from app import app, db
 
 from app.utils.exceptions import EntityIdError, GenreIdError, DirectorIdError
 from app.database.models import Film, Genre, Director
-
-from typing import Any
-
 from app.database.cruds.base import BaseCRUD
 from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema, FilmSchema
 
-from app.database.utils.orm import films_search_filter,  \
+from app.database.utils.orm import films_search_filter, \
     films_director_filter, \
     films_premiere_date_filter, \
     films_genres_ids_filter, \
@@ -19,11 +19,13 @@ from app.database.utils.orm import films_search_filter,  \
 
 
 class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
-    
+    """Films CRUD class."""
+
     def __init__(self):
         super().__init__(Film, FilmSchema, db.session)
 
     def create(self, data: FilmWithUserIdBodySchema) -> FilmSchema:
+        """Creates film and returns it."""
         try:
             if data.director_id:
                 director = Director.query.filter_by(id=data.director_id).first()
@@ -60,6 +62,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
             raise ex
 
     def read(self, data: FilmsQuerySchema) -> list[FilmSchema]:
+        """Returns films according to query parameters."""
         search = data.search
         sort_order = data.sort_order
         sort_by = data.sort_by
@@ -90,6 +93,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
         return [FilmSchema.from_orm(film) for film in films]
 
     def update(self, id_: int, data: FilmBodySchema) -> FilmSchema:
+        """Updates film and returns it."""
         try:
             if data.director_id:
                 director = Director.query.filter_by(id=data.director_id).first()
@@ -119,7 +123,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
                         raise GenreIdError("genre with such ID not found: {}.".format(genre_id))
 
                     film.genres.append(genre)
-            
+
             db.session.add(film)
             db.session.commit()
 

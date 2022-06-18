@@ -1,3 +1,5 @@
+"""Users pydantic schemas."""
+
 from pydantic import BaseModel
 
 from app.schemas.roles import RoleSchema
@@ -9,7 +11,6 @@ class UserBaseSchema(BaseModel):
 
 
 class UserSchema(UserBaseSchema):
-
     class Config:
         orm_mode = True
 

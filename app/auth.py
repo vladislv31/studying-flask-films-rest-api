@@ -7,18 +7,16 @@ from flask_restx import Resource, fields, Namespace
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app, api, db
+
 from app.database.models import User, Role
 from app.schemas.users import UserWithRoleSchema
 from app.resources.models.auth import login_response, register_response, logout_response
 from app.resources.models.users import user_info
 
-
 auth_api = Namespace("auth", "Auth routes")
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
 
 auth_model = api.model("Auth Model", {
     "username": fields.String(example="username"),
@@ -45,6 +43,7 @@ class UserRoute(Resource):
     @auth_api.response(200, "Success", user_info)
     @auth_api.response(401, "Unauthenticated")
     def get(self):
+        """Returns info about user."""
         return UserWithRoleSchema.from_orm(current_user).dict()
 
 
@@ -56,6 +55,7 @@ class RegisterRoute(Resource):
     @auth_api.response(400, "Bad request")
     @auth_api.response(401, "Unauthenticated")
     def post(self):
+        """Registration route."""
         username = request.json.get("username")
         password = request.json.get("password")
 
@@ -85,6 +85,7 @@ class LoginRoute(Resource):
     @auth_api.response(400, "Bad request")
     @auth_api.response(401, "Unauthenticated")
     def post(self):
+        """Login route."""
         username = request.json.get("username")
         password = request.json.get("password")
 
@@ -110,6 +111,7 @@ class LogoutRoute(Resource):
     @auth_api.response(200, "Success", logout_response)
     @auth_api.response(401, "Unauthenticated")
     def post(self):
+        """Logout route."""
         logout_user()
         return {"message": "Logout done successfully."}, 200
 

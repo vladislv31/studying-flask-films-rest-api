@@ -1,12 +1,7 @@
-from faker import Faker
-
 from app import app
 from app.database.models import Director
 
 from tests.e2e.utils import generate_director_data
-
-
-faker_ = Faker()
 
 
 def test_get_directors(client):

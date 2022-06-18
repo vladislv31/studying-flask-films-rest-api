@@ -1,7 +1,8 @@
+"""Restx auth models."""
+
 from flask_restx import fields
 
 from app import api
-
 
 user_response = api.model("Auth", {
     "username": fields.String(example="username")

@@ -1,3 +1,5 @@
+"""Restx directors parsers."""
+
 from flask_restx import reqparse
 
 directors_body_parser = reqparse.RequestParser()

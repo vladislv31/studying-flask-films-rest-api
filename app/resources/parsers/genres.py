@@ -1,5 +1,6 @@
-from flask_restx import reqparse
+"""Restx genres parsers."""
 
+from flask_restx import reqparse
 
 genres_body_parser = reqparse.RequestParser()
 

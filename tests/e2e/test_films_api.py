@@ -3,14 +3,11 @@ from urllib.parse import urlencode
 from datetime import datetime
 
 import pytest
-from faker import Faker
 
 from tests.e2e.utils import generate_film_data
 
 from app import app, db
 from app.database.models import Film, User
-
-faker_ = Faker()
 
 
 def test_get_films(client):
@@ -20,7 +17,7 @@ def test_get_films(client):
     assert set(resp.json.keys()) == {"count", "result"}
 
 
-def test_get_films_with_params(client):
+def test_get_films_with_params(client, faker):
     directors_resp = client.get("/directors/")
     directors = directors_resp.json
 
@@ -28,10 +25,10 @@ def test_get_films_with_params(client):
     genres = genres_resp.json
 
     for _ in range(app.config["EACH_TEST_REPEATS"]):
-        search = faker_.word()
+        search = faker.word()
         director_id = random.choice(directors["result"])["id"]
-        start_premiere_date = faker_.date_between_dates(date_start=datetime(2005, 1, 1), date_end=datetime(2022, 1, 1))
-        end_premiere_date = faker_.date_between_dates(date_start=start_premiere_date, date_end=datetime(2022, 1, 1))
+        start_premiere_date = faker.date_between_dates(date_start=datetime(2005, 1, 1), date_end=datetime(2022, 1, 1))
+        end_premiere_date = faker.date_between_dates(date_start=start_premiere_date, date_end=datetime(2022, 1, 1))
         rating = random.randrange(1, 11)
 
         genres_ids = []
@@ -125,7 +122,12 @@ def test_add_film_not_logged(not_logged_client):
 
     added_film_resp = client.post("/films/", json={
         "title": film_data["title"],
-        "rating": film_data["rating"]
+        "rating": film_data["rating"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert added_film_resp.status_code == 401
@@ -137,7 +139,12 @@ def test_add_film_no_title(logged_client):
     film_data = generate_film_data(client)
 
     added_film_resp = client.post("/films/", json={
-        "rating": film_data["rating"]
+        "rating": film_data["rating"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert added_film_resp.status_code == 400
@@ -149,7 +156,12 @@ def test_add_film_no_rating(logged_client):
     film_data = generate_film_data(client)
 
     added_film_resp = client.post("/films/", json={
-        "title": film_data["title"]
+        "title": film_data["title"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert added_film_resp.status_code == 400
@@ -169,7 +181,12 @@ def test_add_film_bad_rating(rating, logged_client):
 
     added_film_resp = client.post("/films/", json={
         "title": film_data["title"],
-        "rating": rating
+        "rating": rating,
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert added_film_resp.status_code == 400
@@ -183,7 +200,11 @@ def test_add_film_bad_premiere_date(logged_client):
     added_film_resp = client.post("/films/", json={
         "title": film_data["title"],
         "rating": film_data["rating"],
-        "premiere_date": "something"
+        "premiere_date": "something",
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert added_film_resp.status_code == 400
@@ -201,7 +222,11 @@ def test_add_film_bad_director_id(director_id, logged_client):
     added_film_resp = client.post("/films/", json={
         "title": film_data["title"],
         "rating": film_data["rating"],
-        "director_id": director_id
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": director_id,
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert added_film_resp.status_code == 400
@@ -221,6 +246,10 @@ def test_add_film_bad_genres_ids(genres_ids, logged_client):
     added_film_resp = client.post("/films/", json={
         "title": film_data["title"],
         "rating": film_data["rating"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
         "genres_ids": genres_ids
     })
 
@@ -318,7 +347,12 @@ def test_update_film_not_logged(not_logged_client):
 
     updated_film_resp = client.put("/films/1", json={
         "title": film_data["title"],
-        "rating": film_data["rating"]
+        "rating": film_data["rating"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert updated_film_resp.status_code == 401
@@ -374,7 +408,12 @@ def test_update_film_not_found(logged_client):
 
     updated_film_resp = client.put("/films/10000", json={
         "title": film_data["title"],
-        "rating": film_data["rating"]
+        "rating": film_data["rating"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert updated_film_resp.status_code == 404
@@ -397,7 +436,12 @@ def test_update_film_no_title(logged_client):
     added_film_id = added_film_resp.json["result"]["id"]
 
     updated_film_resp = client.put("/films/{}".format(added_film_id), json={
-        "rating": film_data["rating"]
+        "rating": film_data["rating"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert updated_film_resp.status_code == 400
@@ -420,7 +464,12 @@ def test_update_film_no_rating(logged_client):
     added_film_id = added_film_resp.json["result"]["id"]
 
     updated_film_resp = client.put("/films/{}".format(added_film_id), json={
-        "title": film_data["title"]
+        "title": film_data["title"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert updated_film_resp.status_code == 400
@@ -451,7 +500,12 @@ def test_update_film_bad_rating(rating, logged_client):
 
     updated_film_resp = client.put("/films/{}".format(added_film_id), json={
         "title": film_data["title"],
-        "rating": rating
+        "rating": rating,
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert updated_film_resp.status_code == 400
@@ -476,7 +530,11 @@ def test_update_film_bad_premiere_date(logged_client):
     updated_film_resp = client.put("/films/{}".format(added_film_id), json={
         "title": film_data["title"],
         "rating": film_data["rating"],
-        "premiere_date": "something"
+        "premiere_date": "something",
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert updated_film_resp.status_code == 400
@@ -505,7 +563,11 @@ def test_update_film_bad_director_id(director_id, logged_client):
     updated_film_resp = client.put("/films/{}".format(added_film_id), json={
         "title": film_data["title"],
         "rating": film_data["rating"],
-        "director_id": director_id
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": director_id,
+        "genres_ids": film_data["genres_ids"]
     })
 
     assert updated_film_resp.status_code == 400
@@ -536,6 +598,10 @@ def test_update_film_bad_genres_ids(genres_ids, logged_client):
     updated_film_resp = client.put("/films/{}".format(added_film_id), json={
         "title": film_data["title"],
         "rating": film_data["rating"],
+        "premiere_date": film_data["premiere_date"],
+        "description": film_data["description"],
+        "poster_url": film_data["poster_url"],
+        "director_id": film_data["director_id"],
         "genres_ids": genres_ids
     })
 

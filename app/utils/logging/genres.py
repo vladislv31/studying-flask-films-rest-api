@@ -1,3 +1,5 @@
+"""Logging utils for genres."""
+
 from app import app
 from app.schemas.genres import GenreSchema
 

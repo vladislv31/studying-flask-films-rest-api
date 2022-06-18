@@ -1,3 +1,5 @@
+"""Roles pydantic schemas."""
+
 from pydantic import BaseModel
 
 

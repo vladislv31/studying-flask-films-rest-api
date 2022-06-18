@@ -1,9 +1,11 @@
-"""Module implements and connects resources for films."""
+"""Module implements films resources."""
 
 from flask_restx import Resource, Namespace
 from flask_login import login_required, current_user
 
 from app.database.cruds.films import FilmsCRUD
+
+from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
 
 from app.domain.films import get_all_films, create_film, update_film, delete_film, get_one_film
 
@@ -14,11 +16,9 @@ from app.resources.utils.responses import successful_response_message, \
     bad_request_response_message, \
     not_found_request_response_message
 
-from app.schemas.films import FilmsQuerySchema, FilmBodySchema, FilmWithUserIdBodySchema
-
-from app.resources.models.films import films_response, films_body, films_add_response, films_update_response, film_response, films_delete_response
+from app.resources.models.films import films_response, films_body, films_add_response, films_update_response, \
+    film_response, films_delete_response
 from app.resources.parsers.films import films_query_parser, films_body_parser
-
 
 api = Namespace("films", "Films operations")
 
@@ -30,7 +30,7 @@ class FilmsResource(Resource):
     @api.expect(films_query_parser)
     @api.response(200, "Success", films_response)
     def get(self):
-        """Returns films list."""
+        """Returns films."""
         query = films_query_parser.parse_args()
 
         crud = FilmsCRUD()
@@ -46,7 +46,7 @@ class FilmsResource(Resource):
     @api.response(200, "Success", films_add_response)
     @api.response(401, "Unauthenticated")
     def post(self):
-        """Adds film into database."""
+        """Creates film."""
         try:
             body = films_body_parser.parse_args()
 
@@ -66,10 +66,11 @@ class FilmsResource(Resource):
 @api.doc(params={"film_id": "Film ID"})
 @api.response(404, "Film not found")
 class SingleFilmsResource(Resource):
+    """Single film resource."""
 
     @api.response(200, "Success", film_response)
     def get(self, film_id):
-        """Returns specific film."""
+        """Returns film by id."""
         try:
             crud = FilmsCRUD()
             film = get_one_film(crud, film_id)
@@ -85,7 +86,7 @@ class SingleFilmsResource(Resource):
     @api.response(400, "Data validation error")
     @api.response(401, "Unauthenticated")
     def put(self, film_id):
-        """Updates specific film."""
+        """Updates film by id."""
         try:
             body = films_body_parser.parse_args()
 
@@ -106,7 +107,7 @@ class SingleFilmsResource(Resource):
     @api.response(401, "Unauthenticated")
     @api.response(200, "Success", films_delete_response)
     def delete(self, film_id):
-        """Deletes specific film."""
+        """Deletes film by id."""
         try:
             crud = FilmsCRUD()
             delete_film(crud, film_id)
@@ -121,4 +122,3 @@ class SingleFilmsResource(Resource):
 
 api.add_resource(FilmsResource, "/")
 api.add_resource(SingleFilmsResource, "/<int:film_id>")
-

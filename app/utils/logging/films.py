@@ -1,3 +1,5 @@
+"""Logging utils for films."""
+
 from app import app
 from app.schemas.films import FilmSchema
 
