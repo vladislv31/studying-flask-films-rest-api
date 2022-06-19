@@ -13,10 +13,10 @@ from app.schemas.enums import SortByEnum, SortOrderEnum
 class FilmSchema(BaseModel):
     id: int
     title: str
-    premiere_date: Optional[datetime.date]
+    premiere_date: datetime.date
     description: Optional[str]
     rating: int
-    poster_url: Optional[str]
+    poster_url: str
     director: Optional[DirectorSchema]
     user: UserSchema
     genres: list[GenreSchema]
@@ -50,11 +50,11 @@ class FilmsQuerySchema(BaseModel):
 
 class FilmBodySchema(BaseModel):
     title: str
-    premiere_date: Optional[str]
-    director_id: Optional[int]
+    premiere_date: str
+    director_id: int
     description: Optional[str]
     rating: int
-    poster_url: Optional[str]
+    poster_url: str
     genres_ids: Optional[list[int]]
 
 
