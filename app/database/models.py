@@ -72,10 +72,10 @@ class Film(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
-    premiere_date = db.Column(db.Date)
-    description = db.Column(db.Text)
+    premiere_date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     rating = db.Column(db.Integer, nullable=False)
-    poster_url = db.Column(db.String(255))
+    poster_url = db.Column(db.String(255), nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user = db.relationship("User")
