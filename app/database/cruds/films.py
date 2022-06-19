@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app import app, db
 
 from app.utils.exceptions import EntityIdError, GenreIdError, DirectorIdError
@@ -31,7 +33,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
 
             film = Film(
                 title=data.title,
-                premiere_date=data.premiere_date,
+                premiere_date=datetime.strptime(data.premiere_date, "%Y-%m-%d") if data.premiere_date else None,
                 director_id=data.director_id,
                 description=data.description,
                 rating=data.rating,
@@ -79,8 +81,11 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
         films_query = films_genres_ids_filter(films_query, genres_ids)
         films_query = films_ordering_sorting(films_query, sort_by, sort_order)
 
-        films_query = films_query.paginate(page, films_per_page, False)
-        films = films_query.items
+        if page == -1:
+            films = films_query.all()
+        else:
+            films_query = films_query.paginate(page, films_per_page, False)
+            films = films_query.items
 
         return [FilmSchema.from_orm(film) for film in films]
 
@@ -98,7 +103,7 @@ class FilmsCRUD(BaseCRUD[Film, Any, Any, FilmSchema]):
                 raise EntityIdError("Film with such ID not found: {}".format(id_))
 
             film.title = data.title
-            film.premiere_date = data.premiere_date
+            film.premiere_date = datetime.strptime(data.premiere_date, "%Y-%m-%d") if data.premiere_date else None
             film.director_id = data.director_id
             film.description = data.description
             film.rating = data.rating
