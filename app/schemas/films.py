@@ -1,3 +1,5 @@
+"""Films pydantic schemas."""
+
 from typing import Optional
 
 import datetime

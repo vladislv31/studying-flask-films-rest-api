@@ -1,10 +1,12 @@
+"""Restx films models."""
+
 from flask_restx import fields
 
 from app import api
+
 from app.resources.models.directors import director_response
 from app.resources.models.users import user
 from app.resources.models.genres import genre_response
-
 
 film_response = api.model("Film", {
     "id": fields.Integer(example=1),

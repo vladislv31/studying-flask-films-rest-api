@@ -1,10 +1,11 @@
+"""Module with database models."""
+
 from flask_login import UserMixin
 
 from app import db
 
 
 class Role(db.Model):
-
     __tablename__ = "roles"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -15,7 +16,6 @@ class Role(db.Model):
 
 
 class User(db.Model, UserMixin):
-
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +37,6 @@ class User(db.Model, UserMixin):
 
 
 class Director(db.Model):
-
     __tablename__ = "directors"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -49,14 +48,13 @@ class Director(db.Model):
 
 
 film_genres = db.Table("film_genres",
-    db.Column("film_id", db.Integer, db.ForeignKey("films.id", ondelete="CASCADE")),
-    db.Column("genre_id", db.Integer, db.ForeignKey("genres.id", ondelete="CASCADE")),
-    db.UniqueConstraint("film_id", "genre_id")
-)
+                       db.Column("film_id", db.Integer, db.ForeignKey("films.id", ondelete="CASCADE")),
+                       db.Column("genre_id", db.Integer, db.ForeignKey("genres.id", ondelete="CASCADE")),
+                       db.UniqueConstraint("film_id", "genre_id")
+                       )
 
 
 class Genre(db.Model):
-
     __tablename__ = "genres"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -67,7 +65,6 @@ class Genre(db.Model):
 
 
 class Film(db.Model):
-
     __tablename__ = "films"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -87,4 +84,3 @@ class Film(db.Model):
 
     def __repr__(self):
         return f"<Film title={self.title}, premiere_date={self.premiere_date}>"
-

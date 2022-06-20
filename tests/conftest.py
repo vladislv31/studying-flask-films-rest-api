@@ -1,8 +1,12 @@
-import pytest
-import logging
+"""Config module for tests."""
 
-from app import app
-from app import db
+import pytest
+from faker import Faker
+
+from app import app, db
+from app.database.cruds.films import FilmsCRUD
+from app.database.cruds.genres import GenresCRUD
+from app.database.cruds.directors import DirectorsCRUD
 
 from seeds import db_seed
 
@@ -20,6 +24,26 @@ def pytest_configure(config):
         db.create_all()
 
     db_seed()
+
+
+@pytest.fixture
+def faker():
+    return Faker()
+
+
+@pytest.fixture
+def films_crud():
+    return FilmsCRUD()
+
+
+@pytest.fixture
+def genres_crud():
+    return GenresCRUD()
+
+
+@pytest.fixture
+def directors_crud():
+    return DirectorsCRUD()
 
 
 @pytest.fixture

@@ -1,7 +1,8 @@
+"""Restx genres models."""
+
 from flask_restx import fields
 
 from app import api
-
 
 genre_response = api.model("Genre", {
     "id": fields.Integer(example=1),

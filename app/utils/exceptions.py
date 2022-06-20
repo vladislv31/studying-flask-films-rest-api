@@ -1,3 +1,4 @@
+"""Exceptions that used in app."""
 
 
 class EntityIdError(ValueError):

@@ -1,7 +1,8 @@
+"""Restx directors models."""
+
 from flask_restx import fields
 
 from app import api
-
 
 director_response = api.model("Director", {
     "id": fields.Integer(example=1),

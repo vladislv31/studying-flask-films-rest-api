@@ -1,3 +1,5 @@
+"""Genres pydantic schemas."""
+
 from pydantic import BaseModel
 
 
@@ -7,7 +9,7 @@ class GenreBaseSchema(BaseModel):
 
 class GenreSchema(GenreBaseSchema):
     id: int
- 
+
     class Config:
         orm_mode = True
 
@@ -18,4 +20,3 @@ class GenreCreateSchema(GenreBaseSchema):
 
 class GenreUpdateSchema(GenreBaseSchema):
     pass
-

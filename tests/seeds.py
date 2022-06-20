@@ -1,3 +1,5 @@
+"""Seeds utils for testings."""
+
 import random
 from datetime import datetime
 

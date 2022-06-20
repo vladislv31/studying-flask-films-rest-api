@@ -1,3 +1,5 @@
+"""Logging utils for directors."""
+
 from app import app
 from app.schemas.directors import DirectorSchema
 

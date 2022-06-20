@@ -2,8 +2,6 @@ import math
 import random
 from datetime import datetime
 
-from faker import Faker
-
 from app import app
 
 from app.domain.films import get_all_films
@@ -12,18 +10,11 @@ from app.domain.genres import get_all_genres
 
 from app.schemas.films import FilmsQuerySchema
 
-from app.database.cruds.films import FilmsCRUD
-from app.database.cruds.directors import DirectorsCRUD
-from app.database.cruds.genres import GenresCRUD
 
-faker_ = Faker()
-
-
-def test_films_query_search():
-    films_crud = FilmsCRUD()
+def test_films_query_search(faker, films_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
 
-    for word in faker_.words(app.config["EACH_TEST_REPEATS"]):
+    for word in faker.words(app.config["EACH_TEST_REPEATS"]):
         searched_films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"search": word, "page": -1}))
 
         expected_films = []
@@ -35,10 +26,7 @@ def test_films_query_search():
         assert set([str(film) for film in expected_films]) == set([str(film) for film in searched_films])
 
 
-def test_films_query_director_filter():
-    films_crud = FilmsCRUD()
-    directors_crud = DirectorsCRUD()
-
+def test_films_query_director_filter(films_crud, directors_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
     directors = get_all_directors(directors_crud)
 
@@ -55,8 +43,7 @@ def test_films_query_director_filter():
         assert set([str(film) for film in expected_films]) == set([str(film) for film in filtered_films])
 
 
-def test_films_query_sort_by_rating():
-    films_crud = FilmsCRUD()
+def test_films_query_sort_by_rating(films_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
 
     films_ordered_asc = get_all_films(films_crud,
@@ -71,8 +58,7 @@ def test_films_query_sort_by_rating():
     assert expected_ordered_desc == films_ordered_desc
 
 
-def test_films_query_sort_by_date():
-    films_crud = FilmsCRUD()
+def test_films_query_sort_by_date(films_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
 
     films_ordered_asc = get_all_films(films_crud,
@@ -89,12 +75,11 @@ def test_films_query_sort_by_date():
     assert expected_ordered_desc == films_ordered_desc
 
 
-def test_films_query_start_premiere_date():
-    films_crud = FilmsCRUD()
+def test_films_query_start_premiere_date(faker, films_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
 
     for _ in range(app.config["EACH_TEST_REPEATS"]):
-        date = faker_.date_between_dates(date_start=datetime(2005, 1, 1), date_end=datetime(2022, 1, 1))
+        date = faker.date_between_dates(date_start=datetime(2005, 1, 1), date_end=datetime(2022, 1, 1))
         date = str(date)
 
         filtered_films = get_all_films(films_crud,
@@ -109,12 +94,11 @@ def test_films_query_start_premiere_date():
         assert set([str(film) for film in expected_films]) == set([str(film) for film in filtered_films])
 
 
-def test_films_query_end_premiere_date():
-    films_crud = FilmsCRUD()
+def test_films_query_end_premiere_date(faker, films_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
 
     for _ in range(app.config["EACH_TEST_REPEATS"]):
-        date = faker_.date_between_dates(date_start=datetime(2005, 1, 1), date_end=datetime(2022, 1, 1))
+        date = faker.date_between_dates(date_start=datetime(2005, 1, 1), date_end=datetime(2022, 1, 1))
         date = str(date)
 
         filtered_films = get_all_films(films_crud,
@@ -129,8 +113,7 @@ def test_films_query_end_premiere_date():
         assert set([str(film) for film in expected_films]) == set([str(film) for film in filtered_films])
 
 
-def test_films_query_rating_filter():
-    films_crud = FilmsCRUD()
+def test_films_query_rating_filter(films_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
 
     for rating in range(1, 11):
@@ -145,10 +128,7 @@ def test_films_query_rating_filter():
         assert set([str(film) for film in expected_films]) == set([str(film) for film in filtered_films])
 
 
-def test_films_query_genres_filter():
-    films_crud = FilmsCRUD()
-    genres_crud = GenresCRUD()
-
+def test_films_query_genres_filter(films_crud, genres_crud):
     films = get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1}))
     genres = get_all_genres(genres_crud)
 
@@ -171,10 +151,9 @@ def test_films_query_genres_filter():
         assert set([str(film) for film in expected_films]) == set([str(film) for film in filtered_films])
 
 
-def test_films_query_page():
+def test_films_query_page(films_crud):
     films_per_page = app.config["FILMS_PER_PAGE"]
 
-    films_crud = FilmsCRUD()
     films_count = len(get_all_films(films_crud, FilmsQuerySchema.parse_obj({"page": -1})))
 
     if films_count >= films_per_page:

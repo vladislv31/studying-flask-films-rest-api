@@ -1,9 +1,4 @@
-from faker import Faker
-
 from app.database.models import Genre
-
-
-faker_ = Faker()
 
 
 def test_get_genres(client):

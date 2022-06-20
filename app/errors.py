@@ -1,11 +1,13 @@
+"""Module handling errors in routes."""
+
 import traceback
+
+from pydantic import ValidationError
 
 from werkzeug.exceptions import NotFound
 
 from flask import jsonify, request
 from flask_login import current_user
-
-from pydantic import ValidationError
 
 from app import app
 from app.utils.exceptions import UnauthorizedError

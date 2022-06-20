@@ -1,4 +1,7 @@
-"""Command manager."""
+"""Module implements cli commands:
+    - db-init - inits roles(user, admin) and user as admin.
+    - db-seed - seeds users, roles, genres, directors, films.
+"""
 
 import random
 from datetime import datetime
@@ -10,13 +13,31 @@ from werkzeug.security import generate_password_hash
 from app import app, db
 from app.database.models import Genre, Director, Film, User, Role
 
-
 faker_ = Faker()
 
 genres, directors_ids = [], []
 used_genres = []
 admin_role_id = None
 admin_user_id = None
+
+
+@app.cli.command("db-init")
+def db_init():
+    user_role = Role(name="user")
+    admin_role = Role(name="admin")
+
+    db.session.add(user_role)
+    db.session.add(admin_role)
+
+    db.session.commit()
+
+    db.session.refresh(admin_role)
+
+    admin_user = User(username="admin", password=generate_password_hash(app.config["ADMIN_PASSWORD"]),
+                      role_id=admin_role.id)
+
+    db.session.add(admin_user)
+    db.session.commit()
 
 
 @app.cli.command("db-seed")
@@ -112,7 +133,7 @@ def seed_directors():
         directors_ids.append(director.id)
 
     print("Added 15 directors")
-    
+
 
 def seed_films():
     Film.query.delete()

@@ -1,3 +1,5 @@
+"""Module implements genres resource."""
+
 from flask_restx import Resource, Namespace
 from flask_login import login_required
 
@@ -15,14 +17,15 @@ from app.resources.models.genres import genres_response, genres_body, genres_add
     genres_delete_response, genre_response
 from app.resources.parsers.genres import genres_body_parser
 
-
 api = Namespace("genres", "Genres operations")
 
 
 class GenresResource(Resource):
+    """Genres resource."""
 
     @api.response(200, "Success", genres_response)
     def get(self):
+        """Returns genres."""
         crud = GenresCRUD()
         genres = get_all_genres(crud)
 
@@ -37,6 +40,7 @@ class GenresResource(Resource):
     @api.response(400, "Data validation error")
     @api.response(401, "Unauthenticated")
     def post(self):
+        """Creates genre."""
         try:
             body = genres_body_parser.parse_args()
 
@@ -54,9 +58,11 @@ class GenresResource(Resource):
 @api.doc(params={"genre_id": "Genre ID"})
 @api.response(404, "Genre not found")
 class SingleGenresResource(Resource):
+    """Single genres resource."""
 
     @api.response(200, "Success", genre_response)
     def get(self, genre_id):
+        """Returns genre by id."""
         try:
             crud = GenresCRUD()
             genre = get_one_genre(crud, genre_id)
@@ -72,6 +78,7 @@ class SingleGenresResource(Resource):
     @api.response(400, "Data validation error")
     @api.response(401, "Unauthenticated")
     def put(self, genre_id):
+        """Updates genre by id."""
         try:
             body = genres_body_parser.parse_args()
 
@@ -92,6 +99,7 @@ class SingleGenresResource(Resource):
     @api.response(200, "Success", genres_delete_response)
     @api.response(401, "Unauthenticated")
     def delete(self, genre_id):
+        """Deletes genre by id."""
         try:
             crud = GenresCRUD()
             delete_genre(crud, genre_id)

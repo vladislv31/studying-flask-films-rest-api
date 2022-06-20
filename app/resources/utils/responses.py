@@ -1,3 +1,4 @@
+"""HTTP responses."""
 
 
 def successful_response_message(message, result=None):
