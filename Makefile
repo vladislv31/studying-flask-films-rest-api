@@ -11,7 +11,6 @@ stop:
 remove:
 	sudo docker-compose down
 init_db:
-	sudo docker exec nix_films_api flask db init
 	sudo docker exec nix_films_api flask db migrate
 	sudo docker exec nix_films_api flask db upgrade
 	sudo docker exec nix_films_api flask db-init
