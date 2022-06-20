@@ -2,10 +2,12 @@ build:
 	poetry export -f requirements.txt --output requirements.txt --without-hashes
 	sudo docker-compose build
 	rm ./requirements.txt
+rebuild:
+	poetry export -f requirements.txt --output requirements.txt --without-hashes
+	sudo docker-compose up -d --build
+	rm ./requirements.txt
 start:
 	sudo docker-compose up -d
-restart:
-	sudo docker-compose up -d --build
 stop:
 	sudo docker-compose stop
 remove:

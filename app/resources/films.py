@@ -18,7 +18,7 @@ from app.resources.utils.responses import successful_response_message, \
 
 from app.resources.models.films import films_response, films_body, films_add_response, films_update_response, \
     film_response, films_delete_response
-from app.resources.parsers.films import films_query_parser, films_body_parser
+from app.resources.parsers.films import films_query_parser, films_add_body_parser, films_update_body_parser
 
 api = Namespace("films", "Films operations")
 
@@ -48,7 +48,7 @@ class FilmsResource(Resource):
     def post(self):
         """Creates film."""
         try:
-            body = films_body_parser.parse_args()
+            body = films_add_body_parser.parse_args()
 
             crud = FilmsCRUD()
             film = create_film(crud, FilmWithUserIdBodySchema.parse_obj(
@@ -88,7 +88,7 @@ class SingleFilmsResource(Resource):
     def put(self, film_id):
         """Updates film by id."""
         try:
-            body = films_body_parser.parse_args()
+            body = films_update_body_parser.parse_args()
 
             crud = FilmsCRUD()
             film = update_film(crud, film_id, FilmBodySchema.parse_obj(body))

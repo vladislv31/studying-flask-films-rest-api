@@ -47,3 +47,11 @@ ADMIN_PASSWORD=123
 
 - make migrate_db
 - make upgrade_db
+
+### For clear database:
+
+- make stop
+- sudo rm -rf ./pg_data
+- sudo docker-compose up -d --no-deps --build db
+- make start
+- make init_db

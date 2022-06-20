@@ -22,16 +22,30 @@ films_query_parser.add_argument("rating", type=rating_validator, help="Integer i
 films_query_parser.add_argument("genres_ids", type=genres_ids_validator, help="IDs in format: 1,2,3.", location="args")
 films_query_parser.add_argument("page", type=page_validator, help="Integer more than 0.", location="args")
 
-films_body_parser = reqparse.RequestParser()
-films_body_parser.add_argument("title", required=True, type=str, help="Required string field.", location="json")
-films_body_parser.add_argument("director_id", required=True, type=int, help="Should be specified as integer.",
-                               location="json")
-films_body_parser.add_argument("description", required=False, type=str, help="Text field.", location="json")
-films_body_parser.add_argument("premiere_date", required=True, type=date_validator,
-                               help="Should be specified in format: YYYY-m-d.",
-                               location="json")
-films_body_parser.add_argument("rating", required=True, help="Integer in range [1, 10].", type=rating_validator,
-                               location="json")
-films_body_parser.add_argument("poster_url", required=True, type=str, help="String field.", location="json")
-films_body_parser.add_argument("genres_ids", required=False, type=genres_ids_list_validator, help="List of IDs.",
-                               location="json")
+films_add_body_parser = reqparse.RequestParser()
+films_add_body_parser.add_argument("title", required=True, type=str, help="Required string field.", location="json")
+films_add_body_parser.add_argument("director_id", required=True, type=int, help="Should be specified as integer.",
+                                   location="json")
+films_add_body_parser.add_argument("description", required=False, type=str, help="Text field.", location="json")
+films_add_body_parser.add_argument("premiere_date", required=True, type=date_validator,
+                                   help="Should be specified in format: YYYY-m-d.",
+                                   location="json")
+films_add_body_parser.add_argument("rating", required=True, help="Integer in range [1, 10].", type=rating_validator,
+                                   location="json")
+films_add_body_parser.add_argument("poster_url", required=True, type=str, help="String field.", location="json")
+films_add_body_parser.add_argument("genres_ids", required=False, type=genres_ids_list_validator, help="List of IDs.",
+                                   location="json")
+
+films_update_body_parser = reqparse.RequestParser()
+films_update_body_parser.add_argument("title", required=True, type=str, help="Required string field.", location="json")
+films_update_body_parser.add_argument("director_id", required=False, type=int, help="Should be specified as integer.",
+                                      location="json")
+films_update_body_parser.add_argument("description", required=False, type=str, help="Text field.", location="json")
+films_update_body_parser.add_argument("premiere_date", required=True, type=date_validator,
+                                      help="Should be specified in format: YYYY-m-d.",
+                                      location="json")
+films_update_body_parser.add_argument("rating", required=True, help="Integer in range [1, 10].", type=rating_validator,
+                                      location="json")
+films_update_body_parser.add_argument("poster_url", required=True, type=str, help="String field.", location="json")
+films_update_body_parser.add_argument("genres_ids", required=False, type=genres_ids_list_validator, help="List of IDs.",
+                                      location="json")

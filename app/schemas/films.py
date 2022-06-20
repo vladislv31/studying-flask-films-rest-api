@@ -53,7 +53,7 @@ class FilmsQuerySchema(BaseModel):
 class FilmBodySchema(BaseModel):
     title: str
     premiere_date: str
-    director_id: int
+    director_id: Optional[int]
     description: Optional[str]
     rating: int
     poster_url: str
