@@ -7,6 +7,17 @@ authors = ["vladislv31 <vladislv.k31@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 Flask = "2.1.1"
+Flask-SQLAlchemy = "^2.5.1"
+psycopg2-binary = "^2.9.3"
+Flask-Migrate = "^3.1.0"
+python-dotenv = "^0.20.0"
+pylint = "^2.13.9"
+pytest = "^7.1.2"
+Flask-Login = "^0.6.1"
+pydantic = "^1.9.1"
+Faker = "^13.12.0"
+flask-restx = "^0.5.1"
+gunicorn = "^20.1.0"
 
 [tool.poetry.dev-dependencies]
 
