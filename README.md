@@ -1,4 +1,4 @@
-# Nix Flask Films Rest API
+# Flask Films Rest API
 
 ## Basic
 
